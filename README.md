@@ -1,472 +1,251 @@
 # Custom Plugin API Design
 
-Professional guide for designing and implementing custom plugin systems - from architecture to enterprise-scale patterns.
+**Enterprise-grade framework for designing, building, and scaling custom plugin systems.**
 
-## Overview
-
-This Claude Code plugin provides expert guidance on building plugin systems:
-
-- **7 Expert Agents** - Each specialized in plugin system design
-- **7 Reusable Skills** - Quick reference modules
-- **4 Interactive Commands** - Design, review, security, integration
-- **Complete Coverage** - From basics to enterprise patterns
+Built on expertise from **65+ developer roadmap roles**: API Design, System Design, Backend (Node.js, Python, Go, Java), DevOps (Docker, Kubernetes, AWS), Security, Frontend (React, TypeScript), and Advanced Patterns.
 
 ## Quick Start
-
-### Load the Plugin
 
 ```bash
 claude-code plugin add custom-plugin-api-design
 ```
 
-### Use Interactive Commands
+## What You Get
 
-```bash
-/design-plugin           # Design your plugin system
-/review-plugin           # Validate your design
-/security-audit          # Audit security model
-/integration-guide       # Integration patterns
-```
+### 7 Expert Agents (1000+ hours of best practices)
 
-## 7 Expert Agents
+1. **API Design Architect** - REST, GraphQL, system design
+2. **Backend Development** - Node.js, Python, Go, Java patterns
+3. **Database & Performance** - SQL, NoSQL, Redis, optimization
+4. **DevOps & Infrastructure** - Docker, Kubernetes, AWS, Terraform, CI/CD
+5. **Security & Compliance** - OAuth2, JWT, encryption, GDPR, HIPAA
+6. **Frontend & Integration** - React, TypeScript, GraphQL clients
+7. **Advanced Scaling** - Microservices, async patterns, AI agents
 
-### 1. Plugin Fundamentals
-Understand plugin architecture, types, and core design principles.
+### 4 Interactive Commands
 
-**Topics:** Plugin types (library, process, sandbox, embedded), core concepts, design principles
+- **/architect** - Design your plugin system from scratch
+- **/audit** - Review your API design
+- **/roadmap** - Get implementation roadmap
+- **/secure** - Security hardening guide
 
-### 2. Plugin API Architecture
-Design stable, versioned plugin APIs with clear contracts.
+### 19+ Skills (Quick Reference)
 
-**Topics:** API design, versioning, backward compatibility, deprecation
+API Architecture • REST/GraphQL • Node.js • Python • Go • SQL • NoSQL • Caching • Docker • Kubernetes • AWS • OAuth2 • Encryption • Compliance • React • Next.js • Microservices • Async Patterns • AI Agents
 
-### 3. Plugin Registry & Discovery
-Implement plugin discovery, registration, and version resolution.
+## Why This Plugin?
 
-**Topics:** Metadata, discovery mechanisms, version resolution, dependency resolution
-
-### 4. Plugin Security Model
-Secure plugin systems with authentication, authorization, and sandboxing.
-
-**Topics:** Signing, permissions, isolation, resource limits, secure communication
-
-### 5. Plugin Lifecycle Management
-Manage plugin loading, initialization, configuration, and cleanup.
-
-**Topics:** Lifecycle stages, hooks, error handling, recovery, configuration
-
-### 6. Plugin Communication & Integration
-Enable inter-plugin communication and host integration patterns.
-
-**Topics:** Events, commands, data sharing, messages, providers, middleware
-
-### 7. Advanced Plugin Patterns
-Enterprise patterns for scaling and complex plugin systems.
-
-**Topics:** Middleware, composition, async, multi-tenancy, hot reload, performance
-
-## 7 Reusable Skills
-
-| Skill | Focus |
-|-------|-------|
-| **plugin-fundamentals** | Architecture types and concepts |
-| **plugin-api-design** | Interface design and versioning |
-| **plugin-registry** | Discovery and registration |
-| **plugin-security** | Authentication and isolation |
-| **plugin-lifecycle** | Loading and configuration |
-| **plugin-communication** | Events and messaging |
-| **plugin-patterns** | Advanced patterns |
-
-## 4 Interactive Commands
-
-### /design-plugin
-Start designing a plugin system from scratch.
-
-**Input:** Requirements for your system
-**Output:** Complete architecture, API design, implementation roadmap
-
-### /review-plugin
-Validate and improve your plugin system design.
-
-**Input:** Your current design/implementation
-**Output:** Issues found, improvements suggested, fixes provided
-
-### /security-audit
-Comprehensive security review of your plugin system.
-
-**Input:** Security model and implementation
-**Output:** Vulnerabilities found, hardening guide, fixes
-
-### /integration-guide
-Step-by-step guide for integrating plugins into your application.
-
-**Input:** Your technology stack
-**Output:** Implementation examples, best practices, testing guide
-
-## Plugin System Types
-
-### Library-based (In-Process)
-```
-Host Application ←→ Plugin Library (same process)
-```
-✅ Simple, fast
-❌ No isolation, crashes affect host
-
-### Process-based
-```
-Host Application ←→ IPC ←→ Plugin Process
-```
-✅ Complete isolation
-❌ Complex, overhead
-
-### Sandboxed/VM
-```
-Host Application ←→ Sandbox ←→ Plugin (limited access)
-```
-✅ Secure, controlled
-❌ Performance overhead
-
-### Embedded Language
-```
-Host Application ←→ Interpreter ←→ Plugin Script
-```
-✅ Easy to write plugins
-❌ Security risks, slower
-
-## Core Concepts
-
-### Plugin Interface Contract
-```typescript
-interface Plugin {
-  id: string;
-  version: string;
-  activate(context: PluginContext): Promise<void>;
-  deactivate(): Promise<void>;
-}
-```
-
-### Host Services
-```typescript
-interface PluginContext {
-  storage: StorageService;
-  eventBus: EventBus;
-  commands: CommandRegistry;
-  logger: Logger;
-}
-```
-
-### Lifecycle
-```
-Discovered → Validated → Loaded → Initialized → Active → Unloaded
-```
-
-### Communication
-```
-Events: Pub/Sub pattern
-Commands: Request-response pattern
-Storage: Scoped data access
-```
+✅ **Comprehensive** - All aspects of plugin API systems
+✅ **Modern** - Latest patterns and best practices
+✅ **Practical** - Code examples for every concept
+✅ **Interactive** - Commands guide your decisions
+✅ **Production-Ready** - Enterprise-scale patterns
+✅ **Developer Roadmap Aligned** - References 65+ industry roles
 
 ## Use Cases
 
-### Browser Extension System
-- Load extensions from marketplace
-- Sandbox for security
-- DOM access control
-- Event-based communication
-
-### IDE Plugins (VSCode style)
-- Discovery from registry
-- Parallel loading
-- Hot reload capability
-- Language server integration
-
-### SaaS Plugin Platform
-- Multi-tenant isolation
-- Fine-grained permissions
-- Marketplace support
-- Version management
-
-### Game Engine Modding
-- Lua/Python scripting
-- Hot reload during dev
-- Asset access control
-- Performance critical
-
-### CMS Extensions
-- Content type plugins
-- UI component plugins
-- Workflow plugins
-- Data provider plugins
-
-## Getting Started
-
-### Step 1: Design Your System
-```bash
-/design-plugin
-# Answer questions about your system
-# Get architecture recommendations
+### Building New Plugin Systems
+```
+/architect → Design system
+         → Review with /audit
+         → Get roadmap with /roadmap
+         → Harden with /secure
 ```
 
-### Step 2: Learn the Details
-- Read Agent 1 (Fundamentals)
-- Read Agent 2 (API Architecture)
-- Explore relevant skills
-
-### Step 3: Implement Core
-- Plugin interface
-- Plugin loader
-- Plugin registry
-- Basic lifecycle
-
-### Step 4: Validate Design
-```bash
-/review-plugin
-# Share your design
-# Get feedback and improvements
+### Improving Existing Systems
+```
+/audit → Identify issues
+      → Reference agents for solutions
+      → Implement improvements
 ```
 
-### Step 5: Security Hardening
-```bash
-/security-audit
-# Describe security model
-# Get vulnerabilities and fixes
+### Learning & Reference
+```
+Browse agents for comprehensive guidance
+Use skills for quick reference
+Check code examples in every agent
 ```
 
-### Step 6: Integration
-```bash
-/integration-guide
-# Learn step-by-step implementation
-# Get code examples
+## Architecture
+
+```
+Your Plugin System Needs
+         ↓
+  /architect command
+         ↓
+  7 Expert Agents (in parallel)
+  ├─ API Design (contracts, versioning)
+  ├─ Backend (Node/Python/Go/Java)
+  ├─ Database (optimization, caching)
+  ├─ DevOps (containerization, orchestration)
+  ├─ Security (auth, encryption, compliance)
+  ├─ Frontend (React, GraphQL consumption)
+  └─ Scaling (microservices, async, AI)
+         ↓
+  Complete Design + Roadmap
+         ↓
+  /audit → /secure → /roadmap
+         ↓
+  Ready to Build!
 ```
 
-## Topics Covered
+## Key Topics
 
-### Architecture & Design
-- Plugin system types
-- Isolation strategies
-- Plugin interfaces
-- Lifecycle management
-- Discovery mechanisms
+### API Design
+- REST principles (Level 0-3 maturity)
+- GraphQL schema design
+- API contracts and versioning
+- Error handling standards
+- Pagination and filtering
 
-### Implementation
-- Plugin loading
-- Registry design
-- Configuration management
-- Error handling
-- Testing strategies
+### Backend Development
+- **Node.js**: Express, NestJS, Fastify patterns
+- **Python**: Django, FastAPI async patterns
+- **Go**: Goroutines, concurrency, performance
+- **Java**: Spring Boot, enterprise patterns
+- Error handling and logging
+
+### Database & Performance
+- SQL optimization and indexing
+- NoSQL patterns and denormalization
+- Redis caching strategies
+- Query optimization
+- Connection pooling
+
+### DevOps & Infrastructure
+- Docker multi-stage builds
+- Kubernetes deployments and scaling
+- Infrastructure as Code (Terraform)
+- CI/CD pipelines (GitHub Actions)
+- Monitoring (Prometheus, ELK)
 
 ### Security
-- Plugin authentication
-- Permission systems
-- Sandboxing
-- Resource limits
-- Secure communication
+- OAuth 2.0 and JWT
+- API key management
+- TLS/HTTPS configuration
+- Encryption at rest
+- GDPR and HIPAA compliance
 
-### Communication
-- Event systems
-- Command patterns
-- Data sharing
-- Inter-plugin communication
-- Host integration
-
-### Advanced
-- Middleware patterns
-- Plugin composition
-- Async operations
-- Multi-tenancy
-- Hot reloading
+### Frontend
+- React + TypeScript patterns
+- TanStack Query, SWR, Apollo Client
+- State management (Zustand, Redux)
+- Error handling
 - Performance optimization
 
-## Examples
+### Advanced Patterns
+- Microservices architecture
+- Event-driven systems
+- SAGA pattern for transactions
+- CQRS and Event Sourcing
+- Circuit breaker pattern
+- AI agent integration
 
-### Design REST with Plugin System
+## Example: Building an Order Processing API
+
 ```
-1. /design-plugin
-   "Building REST API with plugin middleware"
-2. Get architecture with middleware chain
-3. Implement plugin-based auth, validation, logging
+1. /architect
+   Input: "Order processing system, 10k DAU, need plugin support for payment"
+   Output: Complete architecture with 7 agent perspectives
+
+2. Review each agent's guidance:
+   - API Architect: REST endpoints, contracts
+   - Backend: Node.js + TypeScript patterns
+   - Database: Order storage optimization
+   - DevOps: Docker/K8s deployment
+   - Security: PCI DSS compliance
+   - Frontend: React client for order creation
+   - Scaling: Event-driven order processing
+
+3. /roadmap
+   Output: Week-by-week implementation plan
+
+4. /audit
+   Input: Your initial API design
+   Output: Issues and improvements
+
+5. /secure
+   Input: Your security approach
+   Output: Hardening recommendations
+
+6. Build with confidence!
 ```
 
-### Secure Third-Party Plugins
-```
-1. /security-audit
-   "Supporting untrusted third-party plugins"
-2. Get security hardening guide
-3. Implement signing, sandboxing, permissions
-```
+## Developer Roadmap Alignment
 
-### Scale to Enterprise
-```
-1. /review-plugin
-   "Current plugin system for scaling"
-2. Get improvement recommendations
-3. Learn advanced patterns (multi-tenancy, hot reload)
-```
+This plugin synthesizes best practices from roles including:
 
-## Plugin System Maturity
-
-### Level 1: Basic
-- Library-based plugins
-- Simple interface
-- No isolation
-- Manual loading
-
-**Timeline:** 1-2 weeks
-
-### Level 2: Production
-- Structured discovery
-- Permission system
-- Lifecycle management
-- Event communication
-
-**Timeline:** 2-4 weeks
-
-### Level 3: Enterprise
-- Marketplace support
-- Sandbox isolation
-- Fine-grained permissions
-- Hot reload
-- Multi-tenancy
-
-**Timeline:** 4-8 weeks
+- **Core:** API Design, System Design, Software Architect, Backend, DevOps, Frontend
+- **Languages:** Node.js, Python, Go, Java, TypeScript, JavaScript
+- **Platforms:** AWS, Docker, Kubernetes, Linux
+- **Specialties:** Security, Database, QA, AI/ML
+- **Plus 45+ more roles** for comprehensive coverage
 
 ## Learning Path
 
-### Beginners
-1. Start: Agent 1 (Fundamentals)
-2. Learn: Agent 2 (API Architecture)
-3. Implement: Simple library plugin system
-4. Use: `/design-plugin` to plan
+### Beginner (Week 1)
+1. Agent 1: API Design Fundamentals
+2. Agent 2: Pick your backend (Node/Python/Go)
+3. Agent 6: Frontend integration
+4. Build simple plugin API
 
-### Intermediate
-1. Review: Agents 3-4 (Registry, Security)
-2. Implement: Plugin loader with registry
-3. Add: Permission system
-4. Validate: `/review-plugin` design
+### Intermediate (Week 2-3)
+1. Agent 3: Database design and optimization
+2. Agent 4: DevOps fundamentals
+3. Agent 5: Authentication basics
+4. Deploy to production
 
-### Advanced
-1. Study: Agents 5-7 (Lifecycle, Communication, Patterns)
-2. Implement: Enterprise features
-3. Audit: `/security-audit` security model
-4. Scale: Multi-tenancy, hot reload
+### Advanced (Week 4+)
+1. Agent 7: Scaling patterns
+2. Study all agents comprehensively
+3. Build enterprise system
+4. Reference agents as needed
 
-## Plugin Template
+## Interactive Examples
 
-```javascript
-export class MyPlugin {
-  constructor() {
-    this.id = 'my-plugin';
-    this.version = '1.0.0';
-  }
+Each agent provides:
+- Code examples in Node.js, Python, Go, Java
+- Configuration examples (Docker, Kubernetes, Terraform)
+- Best practices checklists
+- Common pitfalls and solutions
 
-  async activate(context) {
-    this.context = context;
+## Getting Help
 
-    // Register commands
-    context.commands.register('my-cmd', () => {
-      return 'Result';
-    });
+Each agent provides:
+- Detailed explanations of concepts
+- Real-world examples
+- Links to relevant tools and libraries
+- Checklist for implementation
 
-    // Listen to events
-    context.eventBus.subscribe('app:ready', () => {
-      this.onReady();
-    });
-  }
+## Commands Cheat Sheet
 
-  async deactivate() {
-    // Cleanup
-  }
-}
-```
-
-## Plugin Manifest
-
-```json
-{
-  "id": "com.example.myplugin",
-  "name": "My Plugin",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "minHostVersion": "1.0.0",
-  "permissions": {
-    "storage": { "read": true, "write": true },
-    "network": { "fetch": true }
-  },
-  "dependencies": {}
-}
-```
-
-## Best Practices
-
-### Design
-✅ Keep interfaces minimal
-✅ Think about versioning from day one
-✅ Plan for security upfront
-✅ Consider scalability
-
-### Implementation
-✅ Validate all plugin inputs
-✅ Isolate plugin failures
-✅ Log security events
-✅ Test thoroughly
-
-### Operations
-✅ Version plugins semantically
-✅ Plan deprecation path
-✅ Monitor plugin performance
-✅ Update security regularly
-
-## Resources
-
-### Documentation
-- **Agents:** 7 detailed guides (1,000+ pages total)
-- **Skills:** 7 quick reference modules
-- **Commands:** 4 interactive tools
-
-### Examples
-- Plugin templates
-- Code examples
-- Best practices
-- Common patterns
-
-## FAQ
-
-**Q: Which plugin type should I use?**
-A: Start with library-based (simple), move to process-based (isolated) or sandboxed (secure) as needed.
-
-**Q: How do I version plugins?**
-A: Use semantic versioning (MAJOR.MINOR.PATCH) and plan deprecation cycles.
-
-**Q: How do I keep plugins from crashing my app?**
-A: Use process isolation, error handling, and resource limits.
-
-**Q: Can I hot reload plugins?**
-A: Yes, with proper state management and lifecycle hooks.
-
-**Q: How do I sell plugins on a marketplace?**
-A: Implement signing, versioning, and discovery mechanisms (see Agent 3-4).
-
-## Support
-
-- Check Agents for detailed guidance
-- Use Skills for quick reference
-- Try Commands for interactive design
-- Review ARCHITECTURE.md for technical details
+| Command | Use When |
+|---------|----------|
+| `/architect` | Starting a new system |
+| `/audit` | Have a design to review |
+| `/roadmap` | Ready to plan implementation |
+| `/secure` | Need security hardening |
 
 ## Next Steps
 
 1. **Load the plugin:** `claude-code plugin add custom-plugin-api-design`
-2. **Start designing:** `/design-plugin`
-3. **Explore agents:** Read Agent 1 (Fundamentals)
-4. **Learn skills:** Check relevant skills for your domain
-5. **Validate design:** `/review-plugin`
-6. **Implement:** Build your plugin system
+2. **Start designing:** `/architect`
+3. **Explore agents:** Read any agent for deep knowledge
+4. **Review your work:** `/audit`
+5. **Plan implementation:** `/roadmap`
+6. **Harden security:** `/secure`
+
+## Support
+
+- Check relevant agent for your topic
+- Use skills for quick reference
+- Try commands for interactive guidance
+- Review code examples in each agent
 
 ## License
 
-MIT License - See LICENSE file
+MIT - Free for personal and commercial use
 
 ---
 
-**Ready to design your plugin system?** Start with `/design-plugin`!
+**Ready to design enterprise-grade plugin systems?** Try `/architect` now!

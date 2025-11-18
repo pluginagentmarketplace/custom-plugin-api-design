@@ -1,112 +1,176 @@
 {
   "name": "custom-plugin-api-design",
-  "version": "1.0.0",
-  "description": "Professional guide for designing custom plugin systems - architecture, APIs, security, lifecycle management, and integration patterns",
-  "author": "Plugin Architecture Team",
+  "version": "2.0.0",
+  "description": "Enterprise-grade plugin API design system - Complete framework for building, securing, and scaling custom plugin systems based on 65+ developer roadmap roles",
+  "author": "Plugin Architecture Labs",
   "repository": "https://github.com/pluginagentmarketplace/custom-plugin-api-design",
+  "license": "MIT",
   "keywords": [
+    "plugin-api-design",
+    "api-architecture",
     "plugin-system",
-    "plugin-architecture",
-    "plugin-api",
-    "plugin-design",
-    "extensibility",
-    "plugin-security",
-    "plugin-lifecycle"
+    "backend",
+    "devops",
+    "security",
+    "scalability",
+    "system-design",
+    "microservices",
+    "enterprise-patterns"
   ],
   "agents": [
     {
-      "name": "Plugin Fundamentals",
-      "path": "./agents/01-plugin-fundamentals.md",
-      "description": "Plugin architecture basics, types, and design principles"
+      "name": "API Design Architect",
+      "path": "./agents/01-api-architect.md",
+      "description": "Expert in API architecture, contracts, and design - aligned with API Design, System Design, Software Architect roles"
     },
     {
-      "name": "Plugin API Architecture",
-      "path": "./agents/02-plugin-api-architecture.md",
-      "description": "Designing plugin API interfaces, contracts, and versioning"
+      "name": "Backend Development Patterns",
+      "path": "./agents/02-backend-patterns.md",
+      "description": "Backend development expertise - Node.js, Python, Go, Java, frameworks, and production patterns"
     },
     {
-      "name": "Plugin Registry & Discovery",
-      "path": "./agents/03-plugin-registry.md",
-      "description": "Plugin registration, discovery, metadata, and versioning systems"
+      "name": "Database & Performance",
+      "path": "./agents/03-database-performance.md",
+      "description": "Database design, optimization, and performance tuning - SQL, MongoDB, Redis, caching strategies"
     },
     {
-      "name": "Plugin Security Model",
-      "path": "./agents/04-plugin-security.md",
-      "description": "Plugin authentication, authorization, permissions, and sandboxing"
+      "name": "DevOps & Infrastructure",
+      "path": "./agents/04-devops-infrastructure.md",
+      "description": "Infrastructure, deployment, and operations - Docker, Kubernetes, AWS, Terraform, CI/CD"
     },
     {
-      "name": "Plugin Lifecycle Management",
-      "path": "./agents/05-plugin-lifecycle.md",
-      "description": "Plugin loading, initialization, configuration, hooks, and unloading"
+      "name": "Security & Compliance",
+      "path": "./agents/05-security-compliance.md",
+      "description": "Security architecture, authentication, authorization - Cyber security best practices and compliance"
     },
     {
-      "name": "Plugin Communication & Integration",
-      "path": "./agents/06-plugin-communication.md",
-      "description": "Inter-plugin communication, event systems, and host integration"
+      "name": "Frontend & Integration",
+      "path": "./agents/06-frontend-integration.md",
+      "description": "Frontend development and API consumption - React, TypeScript, client patterns"
     },
     {
-      "name": "Advanced Plugin Patterns",
-      "path": "./agents/07-advanced-plugin-patterns.md",
-      "description": "Middleware, filters, plugin composition, async plugins, and enterprise patterns"
+      "name": "Advanced Scaling Patterns",
+      "path": "./agents/07-scaling-patterns.md",
+      "description": "Enterprise patterns, microservices, async operations, AI agents, advanced system design"
     }
   ],
   "commands": [
     {
-      "name": "design-plugin",
-      "path": "./commands/design-plugin.md",
-      "description": "Design your custom plugin system architecture"
+      "name": "architect",
+      "path": "./commands/architect.md",
+      "description": "Design your API system architecture"
     },
     {
-      "name": "review-plugin",
-      "path": "./commands/review-plugin.md",
-      "description": "Review and validate your plugin system design"
+      "name": "audit",
+      "path": "./commands/audit.md",
+      "description": "Audit your API design against best practices"
     },
     {
-      "name": "security-audit",
-      "path": "./commands/security-audit.md",
-      "description": "Audit plugin system security and isolation"
+      "name": "roadmap",
+      "path": "./commands/roadmap.md",
+      "description": "Get implementation roadmap for your API"
     },
     {
-      "name": "integration-guide",
-      "path": "./commands/integration-guide.md",
-      "description": "Guide for integrating plugins with your application"
+      "name": "secure",
+      "path": "./commands/secure.md",
+      "description": "Secure your API - authentication, authorization, compliance"
     }
   ],
   "skills": [
     {
-      "name": "plugin-fundamentals",
-      "path": "./skills/plugin-architecture/SKILL.md",
-      "description": "Plugin system fundamentals and core concepts"
+      "name": "api-architecture",
+      "path": "./skills/api-architecture/SKILL.md",
+      "description": "REST, GraphQL, and hybrid API architecture patterns"
     },
     {
-      "name": "plugin-api-design",
-      "path": "./skills/plugin-api/SKILL.md",
-      "description": "Plugin API interface and contract design"
+      "name": "api-contracts",
+      "path": "./skills/api-architecture/SKILL-contracts.md",
+      "description": "API contracts, versioning, and interface design"
     },
     {
-      "name": "plugin-registry",
-      "path": "./skills/plugin-registry/SKILL.md",
-      "description": "Plugin discovery and registry patterns"
+      "name": "backend-nodejs",
+      "path": "./skills/backend-patterns/SKILL-nodejs.md",
+      "description": "Node.js production patterns and best practices"
     },
     {
-      "name": "plugin-security",
-      "path": "./skills/plugin-security/SKILL.md",
-      "description": "Plugin security, sandboxing, and isolation"
+      "name": "backend-python",
+      "path": "./skills/backend-patterns/SKILL-python.md",
+      "description": "Python backend frameworks and patterns"
     },
     {
-      "name": "plugin-lifecycle",
-      "path": "./skills/plugin-lifecycle/SKILL.md",
-      "description": "Plugin loading and lifecycle management"
+      "name": "backend-go",
+      "path": "./skills/backend-patterns/SKILL-go.md",
+      "description": "Go backend patterns and concurrency"
     },
     {
-      "name": "plugin-communication",
-      "path": "./skills/plugin-communication/SKILL.md",
-      "description": "Inter-plugin communication and events"
+      "name": "database-sql",
+      "path": "./skills/database-patterns/SKILL-sql.md",
+      "description": "SQL databases, queries, and optimization"
     },
     {
-      "name": "plugin-patterns",
-      "path": "./skills/plugin-patterns/SKILL.md",
-      "description": "Advanced plugin patterns and compositions"
+      "name": "database-nosql",
+      "path": "./skills/database-patterns/SKILL-nosql.md",
+      "description": "NoSQL databases and distributed data patterns"
+    },
+    {
+      "name": "caching-redis",
+      "path": "./skills/database-patterns/SKILL-caching.md",
+      "description": "Caching strategies with Redis and in-memory stores"
+    },
+    {
+      "name": "devops-docker",
+      "path": "./skills/devops-patterns/SKILL-docker.md",
+      "description": "Docker containerization and best practices"
+    },
+    {
+      "name": "devops-kubernetes",
+      "path": "./skills/devops-patterns/SKILL-kubernetes.md",
+      "description": "Kubernetes orchestration and scaling"
+    },
+    {
+      "name": "devops-aws",
+      "path": "./skills/devops-patterns/SKILL-aws.md",
+      "description": "AWS services for API infrastructure"
+    },
+    {
+      "name": "security-auth",
+      "path": "./skills/security-patterns/SKILL-auth.md",
+      "description": "Authentication, OAuth2, JWT, API keys"
+    },
+    {
+      "name": "security-encryption",
+      "path": "./skills/security-patterns/SKILL-encryption.md",
+      "description": "Encryption, TLS, and data protection"
+    },
+    {
+      "name": "security-compliance",
+      "path": "./skills/security-patterns/SKILL-compliance.md",
+      "description": "GDPR, HIPAA, compliance frameworks"
+    },
+    {
+      "name": "frontend-react",
+      "path": "./skills/scaling-patterns/SKILL-react.md",
+      "description": "React and TypeScript for API consumption"
+    },
+    {
+      "name": "frontend-next",
+      "path": "./skills/scaling-patterns/SKILL-next.md",
+      "description": "Next.js and full-stack API integration"
+    },
+    {
+      "name": "scaling-microservices",
+      "path": "./skills/scaling-patterns/SKILL-microservices.md",
+      "description": "Microservices architecture and patterns"
+    },
+    {
+      "name": "scaling-async",
+      "path": "./skills/scaling-patterns/SKILL-async.md",
+      "description": "Async operations, job queues, event-driven"
+    },
+    {
+      "name": "scaling-ai-agents",
+      "path": "./skills/scaling-patterns/SKILL-ai-agents.md",
+      "description": "AI agents, LLM APIs, and integration"
     }
   ],
   "hooks": {
