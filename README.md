@@ -1,26 +1,20 @@
 # Custom Plugin API Design
 
-Professional guide for designing, building, and scaling custom APIs using Claude Code.
+Professional guide for designing and implementing custom plugin systems - from architecture to enterprise-scale patterns.
 
 ## Overview
 
-This plugin provides expert guidance across all aspects of API design:
+This Claude Code plugin provides expert guidance on building plugin systems:
 
-- **7 Specialized Agents** - Each expert in a specific domain
-- **7 Comprehensive Skills** - Reusable knowledge modules
-- **4 Interactive Commands** - Practical tools for design, review, security, performance
-- **1000+ Hours of Content** - Best practices, patterns, and examples
+- **7 Expert Agents** - Each specialized in plugin system design
+- **7 Reusable Skills** - Quick reference modules
+- **4 Interactive Commands** - Design, review, security, integration
+- **Complete Coverage** - From basics to enterprise patterns
 
 ## Quick Start
 
 ### Load the Plugin
 
-```bash
-# In Claude Code, use:
-/load custom-plugin-api-design
-```
-
-Or add via marketplace:
 ```bash
 claude-code plugin add custom-plugin-api-design
 ```
@@ -28,340 +22,451 @@ claude-code plugin add custom-plugin-api-design
 ### Use Interactive Commands
 
 ```bash
-/design              # Start designing your API
-/review              # Validate your API design
-/security-check      # Audit API security
-/performance-guide   # Optimize performance
+/design-plugin           # Design your plugin system
+/review-plugin           # Validate your design
+/security-audit          # Audit security model
+/integration-guide       # Integration patterns
 ```
 
 ## 7 Expert Agents
 
-### 1. API Design Fundamentals
-Master HTTP methods, status codes, resource modeling, and RESTful principles.
+### 1. Plugin Fundamentals
+Understand plugin architecture, types, and core design principles.
 
-### 2. REST API Architecture
-Build scalable REST APIs with pagination, filtering, relationships, and maturity levels.
+**Topics:** Plugin types (library, process, sandbox, embedded), core concepts, design principles
 
-### 3. GraphQL Design
-GraphQL schema design, query optimization, subscriptions, and federation patterns.
+### 2. Plugin API Architecture
+Design stable, versioned plugin APIs with clear contracts.
 
-### 4. API Security & Authentication
-OAuth2, JWT, rate limiting, encryption, and comprehensive security practices.
+**Topics:** API design, versioning, backward compatibility, deprecation
 
-### 5. API Performance & Optimization
-Caching, database optimization, compression, monitoring, and scaling strategies.
+### 3. Plugin Registry & Discovery
+Implement plugin discovery, registration, and version resolution.
 
-### 6. API Documentation & Testing
-OpenAPI/Swagger, testing strategies, and comprehensive documentation practices.
+**Topics:** Metadata, discovery mechanisms, version resolution, dependency resolution
 
-### 7. Advanced API Patterns
-Microservices, event-driven architecture, SAGA pattern, webhooks, and circuit breaker.
+### 4. Plugin Security Model
+Secure plugin systems with authentication, authorization, and sandboxing.
 
-## 7 Invokable Skills
+**Topics:** Signing, permissions, isolation, resource limits, secure communication
+
+### 5. Plugin Lifecycle Management
+Manage plugin loading, initialization, configuration, and cleanup.
+
+**Topics:** Lifecycle stages, hooks, error handling, recovery, configuration
+
+### 6. Plugin Communication & Integration
+Enable inter-plugin communication and host integration patterns.
+
+**Topics:** Events, commands, data sharing, messages, providers, middleware
+
+### 7. Advanced Plugin Patterns
+Enterprise patterns for scaling and complex plugin systems.
+
+**Topics:** Middleware, composition, async, multi-tenancy, hot reload, performance
+
+## 7 Reusable Skills
 
 | Skill | Focus |
 |-------|-------|
-| **api-design** | Fundamentals and design principles |
-| **rest-patterns** | REST architecture and patterns |
-| **graphql-patterns** | GraphQL implementation |
-| **api-security** | Authentication and security |
-| **api-performance** | Optimization techniques |
-| **api-testing** | Testing strategies and tools |
-| **design-patterns** | Advanced patterns and architectures |
+| **plugin-fundamentals** | Architecture types and concepts |
+| **plugin-api-design** | Interface design and versioning |
+| **plugin-registry** | Discovery and registration |
+| **plugin-security** | Authentication and isolation |
+| **plugin-lifecycle** | Loading and configuration |
+| **plugin-communication** | Events and messaging |
+| **plugin-patterns** | Advanced patterns |
 
 ## 4 Interactive Commands
 
-### /design
-Design your API from scratch with expert guidance.
+### /design-plugin
+Start designing a plugin system from scratch.
 
-Helps you:
-- Choose architecture (REST, GraphQL, Hybrid)
-- Define resources and data models
-- Plan authentication and authorization
-- Outline performance strategy
+**Input:** Requirements for your system
+**Output:** Complete architecture, API design, implementation roadmap
 
-### /review
-Validate your API design against best practices.
+### /review-plugin
+Validate and improve your plugin system design.
 
-Checks:
-- ✅ Design quality and consistency
-- ✅ Functionality completeness
-- ✅ Developer experience
-- ✅ Security compliance
-- ✅ Performance readiness
+**Input:** Your current design/implementation
+**Output:** Issues found, improvements suggested, fixes provided
 
-### /security-check
-Comprehensive security audit for your API.
+### /security-audit
+Comprehensive security review of your plugin system.
 
-Audits:
-- ✅ Authentication & authorization
-- ✅ Data protection
-- ✅ Input validation
-- ✅ API security
-- ✅ Compliance requirements
+**Input:** Security model and implementation
+**Output:** Vulnerabilities found, hardening guide, fixes
 
-### /performance-guide
-Get specific optimization recommendations.
+### /integration-guide
+Step-by-step guide for integrating plugins into your application.
 
-Analyzes:
-- ✅ Response times
-- ✅ Caching strategy
-- ✅ Database optimization
-- ✅ Payload optimization
-- ✅ Load and scalability
+**Input:** Your technology stack
+**Output:** Implementation examples, best practices, testing guide
 
-## Key Features
+## Plugin System Types
 
-### Comprehensive Coverage
-- From basics to advanced patterns
-- REST, GraphQL, and hybrid approaches
-- Security, performance, testing
-- Microservices and event-driven architecture
+### Library-based (In-Process)
+```
+Host Application ←→ Plugin Library (same process)
+```
+✅ Simple, fast
+❌ No isolation, crashes affect host
 
-### Practical Guidance
-- Real-world examples
-- Code snippets
-- Best practices
-- Design patterns
+### Process-based
+```
+Host Application ←→ IPC ←→ Plugin Process
+```
+✅ Complete isolation
+❌ Complex, overhead
 
-### Interactive Design Tools
-- `/design` - Design your API
-- `/review` - Validate design
-- `/security-check` - Security audit
-- `/performance-guide` - Optimization
+### Sandboxed/VM
+```
+Host Application ←→ Sandbox ←→ Plugin (limited access)
+```
+✅ Secure, controlled
+❌ Performance overhead
 
-### Extensive Documentation
-- 7 detailed agent guides
-- 7 reusable skills
-- OpenAPI/Swagger examples
-- Testing strategies
-- Monitoring approaches
+### Embedded Language
+```
+Host Application ←→ Interpreter ←→ Plugin Script
+```
+✅ Easy to write plugins
+❌ Security risks, slower
+
+## Core Concepts
+
+### Plugin Interface Contract
+```typescript
+interface Plugin {
+  id: string;
+  version: string;
+  activate(context: PluginContext): Promise<void>;
+  deactivate(): Promise<void>;
+}
+```
+
+### Host Services
+```typescript
+interface PluginContext {
+  storage: StorageService;
+  eventBus: EventBus;
+  commands: CommandRegistry;
+  logger: Logger;
+}
+```
+
+### Lifecycle
+```
+Discovered → Validated → Loaded → Initialized → Active → Unloaded
+```
+
+### Communication
+```
+Events: Pub/Sub pattern
+Commands: Request-response pattern
+Storage: Scoped data access
+```
 
 ## Use Cases
 
-### Building New APIs
-Use the design command to architect your API from scratch with expert guidance.
+### Browser Extension System
+- Load extensions from marketplace
+- Sandbox for security
+- DOM access control
+- Event-based communication
 
-### Improving Existing APIs
-Use review and security-check to validate and improve your current API.
+### IDE Plugins (VSCode style)
+- Discovery from registry
+- Parallel loading
+- Hot reload capability
+- Language server integration
 
-### Performance Optimization
-Use performance-guide to identify and implement optimizations.
+### SaaS Plugin Platform
+- Multi-tenant isolation
+- Fine-grained permissions
+- Marketplace support
+- Version management
 
-### Security Hardening
-Use security-check to identify and fix vulnerabilities.
+### Game Engine Modding
+- Lua/Python scripting
+- Hot reload during dev
+- Asset access control
+- Performance critical
 
-### Team Training
-Share the plugin with your team to ensure everyone follows best practices.
+### CMS Extensions
+- Content type plugins
+- UI component plugins
+- Workflow plugins
+- Data provider plugins
+
+## Getting Started
+
+### Step 1: Design Your System
+```bash
+/design-plugin
+# Answer questions about your system
+# Get architecture recommendations
+```
+
+### Step 2: Learn the Details
+- Read Agent 1 (Fundamentals)
+- Read Agent 2 (API Architecture)
+- Explore relevant skills
+
+### Step 3: Implement Core
+- Plugin interface
+- Plugin loader
+- Plugin registry
+- Basic lifecycle
+
+### Step 4: Validate Design
+```bash
+/review-plugin
+# Share your design
+# Get feedback and improvements
+```
+
+### Step 5: Security Hardening
+```bash
+/security-audit
+# Describe security model
+# Get vulnerabilities and fixes
+```
+
+### Step 6: Integration
+```bash
+/integration-guide
+# Learn step-by-step implementation
+# Get code examples
+```
 
 ## Topics Covered
 
 ### Architecture & Design
-- REST principles and maturity levels
-- GraphQL schema design
-- Microservices architecture
-- API gateway patterns
-- Hybrid API approaches
+- Plugin system types
+- Isolation strategies
+- Plugin interfaces
+- Lifecycle management
+- Discovery mechanisms
 
-### Implementation Patterns
-- Resource modeling
-- Pagination strategies
+### Implementation
+- Plugin loading
+- Registry design
+- Configuration management
 - Error handling
-- CORS configuration
-- Rate limiting
+- Testing strategies
 
 ### Security
-- Authentication methods (OAuth2, JWT, API keys)
-- Authorization patterns
-- Input validation
-- SQL injection prevention
-- Security headers
+- Plugin authentication
+- Permission systems
+- Sandboxing
+- Resource limits
+- Secure communication
 
-### Performance
-- Caching strategies (HTTP, Redis, application)
-- Database optimization and indexing
-- Query optimization (N+1 prevention)
-- Compression (gzip, Brotli)
-- Load testing
+### Communication
+- Event systems
+- Command patterns
+- Data sharing
+- Inter-plugin communication
+- Host integration
 
-### Testing & Documentation
-- Unit testing
-- Integration testing
-- E2E testing
-- OpenAPI/Swagger
-- API documentation best practices
-
-### Advanced Topics
-- Microservices
-- Event-driven architecture
+### Advanced
+- Middleware patterns
+- Plugin composition
 - Async operations
-- SAGA pattern
-- Circuit breaker
-- Webhooks
-
-## Who Is This For?
-
-- **API Designers** - Architect scalable, secure APIs
-- **Backend Developers** - Build production-ready APIs
-- **Frontend Developers** - Understand API design from client perspective
-- **DevOps Engineers** - Deploy and scale APIs
-- **Tech Leads** - Guide team on API best practices
-- **Architects** - Design enterprise API systems
-- **Startups** - Build APIs correctly from day one
-
-## Getting Started
-
-### Step 1: Load the Plugin
-```bash
-claude-code plugin add custom-plugin-api-design
-```
-
-### Step 2: Start with Design
-```bash
-/design
-# Tell Claude about your API requirements
-```
-
-### Step 3: Get Recommendations
-Claude will recommend:
-- Architecture approach
-- Technology choices
-- Implementation patterns
-- Security measures
-- Performance optimizations
-
-### Step 4: Validate & Optimize
-```bash
-/review              # Validate design
-/security-check      # Audit security
-/performance-guide   # Optimize performance
-```
-
-## Plugin Structure
-
-```
-custom-plugin-api-design/
-├── .claude-plugin/
-│   └── plugin.json           # Plugin manifest
-├── agents/                   # 7 Expert agents
-│   ├── 01-api-fundamentals.md
-│   ├── 02-rest-architecture.md
-│   ├── 03-graphql-design.md
-│   ├── 04-api-security.md
-│   ├── 05-api-performance.md
-│   ├── 06-api-documentation.md
-│   └── 07-advanced-patterns.md
-├── commands/                 # 4 Interactive commands
-│   ├── design.md
-│   ├── review.md
-│   ├── security-check.md
-│   └── performance-guide.md
-├── skills/                   # 7 Reusable skills
-│   ├── api-design/SKILL.md
-│   ├── rest/SKILL.md
-│   ├── graphql/SKILL.md
-│   ├── security/SKILL.md
-│   ├── performance/SKILL.md
-│   ├── testing/SKILL.md
-│   └── patterns/SKILL.md
-├── hooks/
-│   └── hooks.json            # Plugin hooks
-├── README.md                 # This file
-└── ARCHITECTURE.md           # Architecture guide
-```
-
-## Features
-
-✅ **7 Expert Agents** - Specialized guidance on each topic
-✅ **7 Reusable Skills** - Knowledge modules you can invoke
-✅ **4 Interactive Commands** - Design, review, security, performance
-✅ **1000+ Hours Content** - Comprehensive learning material
-✅ **Best Practices** - Industry standards and patterns
-✅ **Real Examples** - Code snippets and examples
-✅ **Production Ready** - Enterprise-grade guidance
+- Multi-tenancy
+- Hot reloading
+- Performance optimization
 
 ## Examples
 
-### Design REST API
-```bash
-/design
-
-> I want to build an e-commerce API with products, orders, and users
-
-Claude will guide you through:
-- Resource modeling (products, orders, users)
-- Relationship design (user → orders → products)
-- Endpoint design (CRUD operations)
-- Error handling
-- Authentication
-- Performance considerations
+### Design REST with Plugin System
+```
+1. /design-plugin
+   "Building REST API with plugin middleware"
+2. Get architecture with middleware chain
+3. Implement plugin-based auth, validation, logging
 ```
 
-### Review GraphQL Schema
-```bash
-/review
+### Secure Third-Party Plugins
+```
+1. /security-audit
+   "Supporting untrusted third-party plugins"
+2. Get security hardening guide
+3. Implement signing, sandboxing, permissions
+```
 
-> Here's my GraphQL schema (paste schema)
+### Scale to Enterprise
+```
+1. /review-plugin
+   "Current plugin system for scaling"
+2. Get improvement recommendations
+3. Learn advanced patterns (multi-tenancy, hot reload)
+```
 
-Claude will check:
-- Schema structure
-- Query complexity
-- N+1 prevention
-- Performance
+## Plugin System Maturity
+
+### Level 1: Basic
+- Library-based plugins
+- Simple interface
+- No isolation
+- Manual loading
+
+**Timeline:** 1-2 weeks
+
+### Level 2: Production
+- Structured discovery
+- Permission system
+- Lifecycle management
+- Event communication
+
+**Timeline:** 2-4 weeks
+
+### Level 3: Enterprise
+- Marketplace support
+- Sandbox isolation
+- Fine-grained permissions
+- Hot reload
+- Multi-tenancy
+
+**Timeline:** 4-8 weeks
+
+## Learning Path
+
+### Beginners
+1. Start: Agent 1 (Fundamentals)
+2. Learn: Agent 2 (API Architecture)
+3. Implement: Simple library plugin system
+4. Use: `/design-plugin` to plan
+
+### Intermediate
+1. Review: Agents 3-4 (Registry, Security)
+2. Implement: Plugin loader with registry
+3. Add: Permission system
+4. Validate: `/review-plugin` design
+
+### Advanced
+1. Study: Agents 5-7 (Lifecycle, Communication, Patterns)
+2. Implement: Enterprise features
+3. Audit: `/security-audit` security model
+4. Scale: Multi-tenancy, hot reload
+
+## Plugin Template
+
+```javascript
+export class MyPlugin {
+  constructor() {
+    this.id = 'my-plugin';
+    this.version = '1.0.0';
+  }
+
+  async activate(context) {
+    this.context = context;
+
+    // Register commands
+    context.commands.register('my-cmd', () => {
+      return 'Result';
+    });
+
+    // Listen to events
+    context.eventBus.subscribe('app:ready', () => {
+      this.onReady();
+    });
+  }
+
+  async deactivate() {
+    // Cleanup
+  }
+}
+```
+
+## Plugin Manifest
+
+```json
+{
+  "id": "com.example.myplugin",
+  "name": "My Plugin",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "minHostVersion": "1.0.0",
+  "permissions": {
+    "storage": { "read": true, "write": true },
+    "network": { "fetch": true }
+  },
+  "dependencies": {}
+}
+```
+
+## Best Practices
+
+### Design
+✅ Keep interfaces minimal
+✅ Think about versioning from day one
+✅ Plan for security upfront
+✅ Consider scalability
+
+### Implementation
+✅ Validate all plugin inputs
+✅ Isolate plugin failures
+✅ Log security events
+✅ Test thoroughly
+
+### Operations
+✅ Version plugins semantically
+✅ Plan deprecation path
+✅ Monitor plugin performance
+✅ Update security regularly
+
+## Resources
+
+### Documentation
+- **Agents:** 7 detailed guides (1,000+ pages total)
+- **Skills:** 7 quick reference modules
+- **Commands:** 4 interactive tools
+
+### Examples
+- Plugin templates
+- Code examples
 - Best practices
-```
+- Common patterns
 
-### Security Audit
-```bash
-/security-check
+## FAQ
 
-> My API uses JWT + HTTPS
+**Q: Which plugin type should I use?**
+A: Start with library-based (simple), move to process-based (isolated) or sandboxed (secure) as needed.
 
-Claude will audit:
-- Token management
-- Authorization
-- Input validation
-- Data protection
-- Compliance
-```
+**Q: How do I version plugins?**
+A: Use semantic versioning (MAJOR.MINOR.PATCH) and plan deprecation cycles.
 
-### Performance Optimization
-```bash
-/performance-guide
+**Q: How do I keep plugins from crashing my app?**
+A: Use process isolation, error handling, and resource limits.
 
-> My API responds in 2 seconds
+**Q: Can I hot reload plugins?**
+A: Yes, with proper state management and lifecycle hooks.
 
-Claude will recommend:
-- Caching strategies
-- Database optimization
-- Pagination improvements
-- Compression
-- Monitoring setup
-```
-
-## Versioning
-
-**Current Version:** 1.0.0
-**Compatible with:** Claude Code 1.0+
-**Last Updated:** 2024
+**Q: How do I sell plugins on a marketplace?**
+A: Implement signing, versioning, and discovery mechanisms (see Agent 3-4).
 
 ## Support
 
-For issues or feedback:
-- Report issues on [GitHub](https://github.com/pluginagentmarketplace/custom-plugin-api-design)
-- Check documentation in each agent file
-- Review examples in skill files
-
-## License
-
-This plugin is licensed under MIT. See LICENSE file for details.
+- Check Agents for detailed guidance
+- Use Skills for quick reference
+- Try Commands for interactive design
+- Review ARCHITECTURE.md for technical details
 
 ## Next Steps
 
-1. **Load the Plugin** - Add it to Claude Code
-2. **Start with Design** - Use `/design` command
-3. **Explore Agents** - Learn from the 7 experts
-4. **Review Best Practices** - Read through agents and skills
-5. **Build Your API** - Apply the guidance to your project
+1. **Load the plugin:** `claude-code plugin add custom-plugin-api-design`
+2. **Start designing:** `/design-plugin`
+3. **Explore agents:** Read Agent 1 (Fundamentals)
+4. **Learn skills:** Check relevant skills for your domain
+5. **Validate design:** `/review-plugin`
+6. **Implement:** Build your plugin system
 
-Happy API designing! 🚀
+## License
+
+MIT License - See LICENSE file
+
+---
+
+**Ready to design your plugin system?** Start with `/design-plugin`!

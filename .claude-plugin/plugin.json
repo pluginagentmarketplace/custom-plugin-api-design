@@ -1,114 +1,112 @@
 {
   "name": "custom-plugin-api-design",
   "version": "1.0.0",
-  "description": "Professional Custom Plugin API Design system - Expert guidance for building scalable, secure, and well-documented APIs",
-  "author": "Plugin Agent Marketplace",
+  "description": "Professional guide for designing custom plugin systems - architecture, APIs, security, lifecycle management, and integration patterns",
+  "author": "Plugin Architecture Team",
   "repository": "https://github.com/pluginagentmarketplace/custom-plugin-api-design",
   "keywords": [
-    "api-design",
+    "plugin-system",
     "plugin-architecture",
-    "rest-api",
-    "graphql",
-    "microservices",
-    "api-security",
-    "api-documentation",
-    "performance",
-    "scalability"
+    "plugin-api",
+    "plugin-design",
+    "extensibility",
+    "plugin-security",
+    "plugin-lifecycle"
   ],
   "agents": [
     {
-      "name": "API Design Fundamentals",
-      "path": "./agents/01-api-fundamentals.md",
-      "description": "RESTful API principles, HTTP methods, status codes, and core design patterns"
+      "name": "Plugin Fundamentals",
+      "path": "./agents/01-plugin-fundamentals.md",
+      "description": "Plugin architecture basics, types, and design principles"
     },
     {
-      "name": "REST API Architecture",
-      "path": "./agents/02-rest-architecture.md",
-      "description": "Building scalable REST APIs with proper resource modeling, versioning, and best practices"
+      "name": "Plugin API Architecture",
+      "path": "./agents/02-plugin-api-architecture.md",
+      "description": "Designing plugin API interfaces, contracts, and versioning"
     },
     {
-      "name": "GraphQL Design",
-      "path": "./agents/03-graphql-design.md",
-      "description": "GraphQL schema design, query optimization, and federation patterns"
+      "name": "Plugin Registry & Discovery",
+      "path": "./agents/03-plugin-registry.md",
+      "description": "Plugin registration, discovery, metadata, and versioning systems"
     },
     {
-      "name": "API Security & Authentication",
-      "path": "./agents/04-api-security.md",
-      "description": "OAuth2, JWT, API keys, rate limiting, and security best practices"
+      "name": "Plugin Security Model",
+      "path": "./agents/04-plugin-security.md",
+      "description": "Plugin authentication, authorization, permissions, and sandboxing"
     },
     {
-      "name": "API Performance & Optimization",
-      "path": "./agents/05-api-performance.md",
-      "description": "Caching strategies, pagination, compression, and monitoring for high-performance APIs"
+      "name": "Plugin Lifecycle Management",
+      "path": "./agents/05-plugin-lifecycle.md",
+      "description": "Plugin loading, initialization, configuration, hooks, and unloading"
     },
     {
-      "name": "API Documentation & Testing",
-      "path": "./agents/06-api-documentation.md",
-      "description": "OpenAPI/Swagger, testing strategies, and comprehensive API documentation"
+      "name": "Plugin Communication & Integration",
+      "path": "./agents/06-plugin-communication.md",
+      "description": "Inter-plugin communication, event systems, and host integration"
     },
     {
-      "name": "Advanced API Patterns",
-      "path": "./agents/07-advanced-patterns.md",
-      "description": "Microservices, event-driven APIs, async patterns, and enterprise patterns"
+      "name": "Advanced Plugin Patterns",
+      "path": "./agents/07-advanced-plugin-patterns.md",
+      "description": "Middleware, filters, plugin composition, async plugins, and enterprise patterns"
     }
   ],
   "commands": [
     {
-      "name": "design",
-      "path": "./commands/design.md",
-      "description": "Start designing your API - get guidance on architecture decisions"
+      "name": "design-plugin",
+      "path": "./commands/design-plugin.md",
+      "description": "Design your custom plugin system architecture"
     },
     {
-      "name": "review",
-      "path": "./commands/review.md",
-      "description": "Review and validate your API design against best practices"
+      "name": "review-plugin",
+      "path": "./commands/review-plugin.md",
+      "description": "Review and validate your plugin system design"
     },
     {
-      "name": "security-check",
-      "path": "./commands/security-check.md",
-      "description": "Audit your API for security vulnerabilities and compliance"
+      "name": "security-audit",
+      "path": "./commands/security-audit.md",
+      "description": "Audit plugin system security and isolation"
     },
     {
-      "name": "performance-guide",
-      "path": "./commands/performance-guide.md",
-      "description": "Get performance optimization recommendations for your API"
+      "name": "integration-guide",
+      "path": "./commands/integration-guide.md",
+      "description": "Guide for integrating plugins with your application"
     }
   ],
   "skills": [
     {
-      "name": "api-design",
-      "path": "./skills/api-design/SKILL.md",
-      "description": "Core API design principles and patterns"
+      "name": "plugin-fundamentals",
+      "path": "./skills/plugin-architecture/SKILL.md",
+      "description": "Plugin system fundamentals and core concepts"
     },
     {
-      "name": "rest-patterns",
-      "path": "./skills/rest/SKILL.md",
-      "description": "REST API implementation patterns"
+      "name": "plugin-api-design",
+      "path": "./skills/plugin-api/SKILL.md",
+      "description": "Plugin API interface and contract design"
     },
     {
-      "name": "graphql-patterns",
-      "path": "./skills/graphql/SKILL.md",
-      "description": "GraphQL design and implementation"
+      "name": "plugin-registry",
+      "path": "./skills/plugin-registry/SKILL.md",
+      "description": "Plugin discovery and registry patterns"
     },
     {
-      "name": "api-security",
-      "path": "./skills/security/SKILL.md",
-      "description": "API authentication and security"
+      "name": "plugin-security",
+      "path": "./skills/plugin-security/SKILL.md",
+      "description": "Plugin security, sandboxing, and isolation"
     },
     {
-      "name": "api-performance",
-      "path": "./skills/performance/SKILL.md",
-      "description": "Performance optimization techniques"
+      "name": "plugin-lifecycle",
+      "path": "./skills/plugin-lifecycle/SKILL.md",
+      "description": "Plugin loading and lifecycle management"
     },
     {
-      "name": "api-testing",
-      "path": "./skills/testing/SKILL.md",
-      "description": "API testing strategies and tools"
+      "name": "plugin-communication",
+      "path": "./skills/plugin-communication/SKILL.md",
+      "description": "Inter-plugin communication and events"
     },
     {
-      "name": "design-patterns",
-      "path": "./skills/patterns/SKILL.md",
-      "description": "Advanced API design patterns"
+      "name": "plugin-patterns",
+      "path": "./skills/plugin-patterns/SKILL.md",
+      "description": "Advanced plugin patterns and compositions"
     }
   ],
   "hooks": {
