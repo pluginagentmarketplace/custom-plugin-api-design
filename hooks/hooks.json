@@ -1,0 +1,100 @@
+{
+  "version": "1",
+  "hooks": [
+    {
+      "name": "design-guidance",
+      "description": "Provides design guidance when user mentions API design",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "design.*api",
+          "api.*design",
+          "architecture",
+          "design.*architecture"
+        ]
+      },
+      "action": {
+        "type": "suggest-command",
+        "command": "/design"
+      }
+    },
+    {
+      "name": "review-guidance",
+      "description": "Suggests review when user shares API spec",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "review.*api",
+          "validate.*api",
+          "check.*design",
+          "openapi",
+          "swagger",
+          "graphql.*schema"
+        ]
+      },
+      "action": {
+        "type": "suggest-command",
+        "command": "/review"
+      }
+    },
+    {
+      "name": "security-guidance",
+      "description": "Provides security guidance when needed",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "secure.*api",
+          "auth.*api",
+          "jwt",
+          "oauth",
+          "security.*api",
+          "vulnerability",
+          "penetration"
+        ]
+      },
+      "action": {
+        "type": "suggest-command",
+        "command": "/security-check"
+      }
+    },
+    {
+      "name": "performance-guidance",
+      "description": "Provides performance guidance when needed",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "slow.*api",
+          "performance",
+          "optimize.*api",
+          "latency",
+          "caching",
+          "scaling"
+        ]
+      },
+      "action": {
+        "type": "suggest-command",
+        "command": "/performance-guide"
+      }
+    },
+    {
+      "name": "skill-loader",
+      "description": "Automatically loads relevant skills",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "rest.*api",
+          "graphql",
+          "authentication",
+          "authorization",
+          "testing.*api",
+          "microservices",
+          "event.*driven"
+        ]
+      },
+      "action": {
+        "type": "load-skills",
+        "condition": "auto"
+      }
+    }
+  ]
+}

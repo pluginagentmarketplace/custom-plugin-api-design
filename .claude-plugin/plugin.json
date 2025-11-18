@@ -1,0 +1,117 @@
+{
+  "name": "custom-plugin-api-design",
+  "version": "1.0.0",
+  "description": "Professional Custom Plugin API Design system - Expert guidance for building scalable, secure, and well-documented APIs",
+  "author": "Plugin Agent Marketplace",
+  "repository": "https://github.com/pluginagentmarketplace/custom-plugin-api-design",
+  "keywords": [
+    "api-design",
+    "plugin-architecture",
+    "rest-api",
+    "graphql",
+    "microservices",
+    "api-security",
+    "api-documentation",
+    "performance",
+    "scalability"
+  ],
+  "agents": [
+    {
+      "name": "API Design Fundamentals",
+      "path": "./agents/01-api-fundamentals.md",
+      "description": "RESTful API principles, HTTP methods, status codes, and core design patterns"
+    },
+    {
+      "name": "REST API Architecture",
+      "path": "./agents/02-rest-architecture.md",
+      "description": "Building scalable REST APIs with proper resource modeling, versioning, and best practices"
+    },
+    {
+      "name": "GraphQL Design",
+      "path": "./agents/03-graphql-design.md",
+      "description": "GraphQL schema design, query optimization, and federation patterns"
+    },
+    {
+      "name": "API Security & Authentication",
+      "path": "./agents/04-api-security.md",
+      "description": "OAuth2, JWT, API keys, rate limiting, and security best practices"
+    },
+    {
+      "name": "API Performance & Optimization",
+      "path": "./agents/05-api-performance.md",
+      "description": "Caching strategies, pagination, compression, and monitoring for high-performance APIs"
+    },
+    {
+      "name": "API Documentation & Testing",
+      "path": "./agents/06-api-documentation.md",
+      "description": "OpenAPI/Swagger, testing strategies, and comprehensive API documentation"
+    },
+    {
+      "name": "Advanced API Patterns",
+      "path": "./agents/07-advanced-patterns.md",
+      "description": "Microservices, event-driven APIs, async patterns, and enterprise patterns"
+    }
+  ],
+  "commands": [
+    {
+      "name": "design",
+      "path": "./commands/design.md",
+      "description": "Start designing your API - get guidance on architecture decisions"
+    },
+    {
+      "name": "review",
+      "path": "./commands/review.md",
+      "description": "Review and validate your API design against best practices"
+    },
+    {
+      "name": "security-check",
+      "path": "./commands/security-check.md",
+      "description": "Audit your API for security vulnerabilities and compliance"
+    },
+    {
+      "name": "performance-guide",
+      "path": "./commands/performance-guide.md",
+      "description": "Get performance optimization recommendations for your API"
+    }
+  ],
+  "skills": [
+    {
+      "name": "api-design",
+      "path": "./skills/api-design/SKILL.md",
+      "description": "Core API design principles and patterns"
+    },
+    {
+      "name": "rest-patterns",
+      "path": "./skills/rest/SKILL.md",
+      "description": "REST API implementation patterns"
+    },
+    {
+      "name": "graphql-patterns",
+      "path": "./skills/graphql/SKILL.md",
+      "description": "GraphQL design and implementation"
+    },
+    {
+      "name": "api-security",
+      "path": "./skills/security/SKILL.md",
+      "description": "API authentication and security"
+    },
+    {
+      "name": "api-performance",
+      "path": "./skills/performance/SKILL.md",
+      "description": "Performance optimization techniques"
+    },
+    {
+      "name": "api-testing",
+      "path": "./skills/testing/SKILL.md",
+      "description": "API testing strategies and tools"
+    },
+    {
+      "name": "design-patterns",
+      "path": "./skills/patterns/SKILL.md",
+      "description": "Advanced API design patterns"
+    }
+  ],
+  "hooks": {
+    "path": "./hooks/hooks.json"
+  }
+}
