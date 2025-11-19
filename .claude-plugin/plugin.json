@@ -1,0 +1,179 @@
+{
+  "name": "custom-plugin-api-design",
+  "version": "2.0.0",
+  "description": "Enterprise-grade plugin API design system - Complete framework for building, securing, and scaling custom plugin systems based on 65+ developer roadmap roles",
+  "author": "Plugin Architecture Labs",
+  "repository": "https://github.com/pluginagentmarketplace/custom-plugin-api-design",
+  "license": "MIT",
+  "keywords": [
+    "plugin-api-design",
+    "api-architecture",
+    "plugin-system",
+    "backend",
+    "devops",
+    "security",
+    "scalability",
+    "system-design",
+    "microservices",
+    "enterprise-patterns"
+  ],
+  "agents": [
+    {
+      "name": "API Design Architect",
+      "path": "./agents/01-api-architect.md",
+      "description": "Expert in API architecture, contracts, and design - aligned with API Design, System Design, Software Architect roles"
+    },
+    {
+      "name": "Backend Development Patterns",
+      "path": "./agents/02-backend-patterns.md",
+      "description": "Backend development expertise - Node.js, Python, Go, Java, frameworks, and production patterns"
+    },
+    {
+      "name": "Database & Performance",
+      "path": "./agents/03-database-performance.md",
+      "description": "Database design, optimization, and performance tuning - SQL, MongoDB, Redis, caching strategies"
+    },
+    {
+      "name": "DevOps & Infrastructure",
+      "path": "./agents/04-devops-infrastructure.md",
+      "description": "Infrastructure, deployment, and operations - Docker, Kubernetes, AWS, Terraform, CI/CD"
+    },
+    {
+      "name": "Security & Compliance",
+      "path": "./agents/05-security-compliance.md",
+      "description": "Security architecture, authentication, authorization - Cyber security best practices and compliance"
+    },
+    {
+      "name": "Frontend & Integration",
+      "path": "./agents/06-frontend-integration.md",
+      "description": "Frontend development and API consumption - React, TypeScript, client patterns"
+    },
+    {
+      "name": "Advanced Scaling Patterns",
+      "path": "./agents/07-scaling-patterns.md",
+      "description": "Enterprise patterns, microservices, async operations, AI agents, advanced system design"
+    }
+  ],
+  "commands": [
+    {
+      "name": "architect",
+      "path": "./commands/architect.md",
+      "description": "Design your API system architecture"
+    },
+    {
+      "name": "audit",
+      "path": "./commands/audit.md",
+      "description": "Audit your API design against best practices"
+    },
+    {
+      "name": "roadmap",
+      "path": "./commands/roadmap.md",
+      "description": "Get implementation roadmap for your API"
+    },
+    {
+      "name": "secure",
+      "path": "./commands/secure.md",
+      "description": "Secure your API - authentication, authorization, compliance"
+    }
+  ],
+  "skills": [
+    {
+      "name": "api-architecture",
+      "path": "./skills/api-architecture/SKILL.md",
+      "description": "REST, GraphQL, and hybrid API architecture patterns"
+    },
+    {
+      "name": "api-contracts",
+      "path": "./skills/api-architecture/SKILL-contracts.md",
+      "description": "API contracts, versioning, and interface design"
+    },
+    {
+      "name": "backend-nodejs",
+      "path": "./skills/backend-patterns/SKILL-nodejs.md",
+      "description": "Node.js production patterns and best practices"
+    },
+    {
+      "name": "backend-python",
+      "path": "./skills/backend-patterns/SKILL-python.md",
+      "description": "Python backend frameworks and patterns"
+    },
+    {
+      "name": "backend-go",
+      "path": "./skills/backend-patterns/SKILL-go.md",
+      "description": "Go backend patterns and concurrency"
+    },
+    {
+      "name": "database-sql",
+      "path": "./skills/database-patterns/SKILL-sql.md",
+      "description": "SQL databases, queries, and optimization"
+    },
+    {
+      "name": "database-nosql",
+      "path": "./skills/database-patterns/SKILL-nosql.md",
+      "description": "NoSQL databases and distributed data patterns"
+    },
+    {
+      "name": "caching-redis",
+      "path": "./skills/database-patterns/SKILL-caching.md",
+      "description": "Caching strategies with Redis and in-memory stores"
+    },
+    {
+      "name": "devops-docker",
+      "path": "./skills/devops-patterns/SKILL-docker.md",
+      "description": "Docker containerization and best practices"
+    },
+    {
+      "name": "devops-kubernetes",
+      "path": "./skills/devops-patterns/SKILL-kubernetes.md",
+      "description": "Kubernetes orchestration and scaling"
+    },
+    {
+      "name": "devops-aws",
+      "path": "./skills/devops-patterns/SKILL-aws.md",
+      "description": "AWS services for API infrastructure"
+    },
+    {
+      "name": "security-auth",
+      "path": "./skills/security-patterns/SKILL-auth.md",
+      "description": "Authentication, OAuth2, JWT, API keys"
+    },
+    {
+      "name": "security-encryption",
+      "path": "./skills/security-patterns/SKILL-encryption.md",
+      "description": "Encryption, TLS, and data protection"
+    },
+    {
+      "name": "security-compliance",
+      "path": "./skills/security-patterns/SKILL-compliance.md",
+      "description": "GDPR, HIPAA, compliance frameworks"
+    },
+    {
+      "name": "frontend-react",
+      "path": "./skills/scaling-patterns/SKILL-react.md",
+      "description": "React and TypeScript for API consumption"
+    },
+    {
+      "name": "frontend-next",
+      "path": "./skills/scaling-patterns/SKILL-next.md",
+      "description": "Next.js and full-stack API integration"
+    },
+    {
+      "name": "scaling-microservices",
+      "path": "./skills/scaling-patterns/SKILL-microservices.md",
+      "description": "Microservices architecture and patterns"
+    },
+    {
+      "name": "scaling-async",
+      "path": "./skills/scaling-patterns/SKILL-async.md",
+      "description": "Async operations, job queues, event-driven"
+    },
+    {
+      "name": "scaling-ai-agents",
+      "path": "./skills/scaling-patterns/SKILL-ai-agents.md",
+      "description": "AI agents, LLM APIs, and integration"
+    }
+  ],
+  "hooks": {
+    "path": "./hooks/hooks.json"
+  }
+}

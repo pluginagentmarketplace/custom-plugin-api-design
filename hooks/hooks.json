@@ -1,0 +1,63 @@
+{
+  "version": "1",
+  "hooks": [
+    {
+      "name": "architect-trigger",
+      "description": "Suggests /architect command for architecture questions",
+      "trigger": {
+        "type": "keyword",
+        "patterns": ["design.*plugin", "plugin.*architecture", "api.*design", "build.*system"]
+      },
+      "action": "suggest-command",
+      "command": "/architect"
+    },
+    {
+      "name": "audit-trigger",
+      "description": "Suggests /audit for review questions",
+      "trigger": {
+        "type": "keyword",
+        "patterns": ["review.*api", "validate.*design", "check.*architecture", "audit"]
+      },
+      "action": "suggest-command",
+      "command": "/audit"
+    },
+    {
+      "name": "security-trigger",
+      "description": "Suggests /secure for security questions",
+      "trigger": {
+        "type": "keyword",
+        "patterns": ["secure.*api", "auth.*", "encryption", "compliance", "gdpr", "hipaa"]
+      },
+      "action": "suggest-command",
+      "command": "/secure"
+    },
+    {
+      "name": "roadmap-trigger",
+      "description": "Suggests /roadmap for implementation planning",
+      "trigger": {
+        "type": "keyword",
+        "patterns": ["roadmap", "implementation.*plan", "timeline", "schedule", "build.*plan"]
+      },
+      "action": "suggest-command",
+      "command": "/roadmap"
+    },
+    {
+      "name": "agent-loading",
+      "description": "Automatically loads relevant agents based on topic",
+      "trigger": {
+        "type": "keyword",
+        "patterns": [
+          "rest|graphql|api",
+          "backend|node|python|go|java",
+          "database|sql|mongodb|redis",
+          "docker|kubernetes|devops|terraform",
+          "security|oauth|jwt|encryption",
+          "react|frontend|typescript",
+          "microservices|scaling|async|events"
+        ]
+      },
+      "action": "load-agents",
+      "condition": "auto"
+    }
+  ]
+}
