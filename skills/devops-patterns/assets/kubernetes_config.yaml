@@ -1,0 +1,176 @@
+# Kubernetes Configuration Template
+# Production-ready K8s patterns
+
+version: "1.0.0"
+
+# Namespace
+namespace: production
+
+# Deployment Configuration
+deployment:
+  replicas:
+    min: 3
+    max: 10
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  probes:
+    liveness:
+      path: "/health/live"
+      port: 3000
+      initial_delay_seconds: 30
+      period_seconds: 10
+      timeout_seconds: 5
+      failure_threshold: 3
+
+    readiness:
+      path: "/health/ready"
+      port: 3000
+      initial_delay_seconds: 5
+      period_seconds: 5
+      timeout_seconds: 3
+      failure_threshold: 3
+
+# Service Configuration
+service:
+  type: ClusterIP
+  port: 80
+  target_port: 3000
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  class: nginx
+
+  annotations:
+    cert_manager: letsencrypt-prod
+    ssl_redirect: true
+    rate_limit: "100"
+
+  tls:
+    enabled: true
+    secret_name: api-tls
+
+# HPA (Horizontal Pod Autoscaler)
+autoscaling:
+  enabled: true
+  min_replicas: 3
+  max_replicas: 10
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          average_utilization: 70
+
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          average_utilization: 80
+
+  behavior:
+    scale_down:
+      stabilization_window_seconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          period_seconds: 60
+
+    scale_up:
+      stabilization_window_seconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          period_seconds: 15
+
+# ConfigMap
+config:
+  log_level: "info"
+  api_timeout: "30000"
+
+# Secrets (reference only - use external secrets manager)
+secrets:
+  database_url: "${DB_URL}"
+  redis_url: "${REDIS_URL}"
+  jwt_secret: "${JWT_SECRET}"
+
+# Pod Disruption Budget
+pdb:
+  min_available: 2
+
+# Network Policy
+network_policy:
+  ingress:
+    - from:
+        - pod_selector:
+            app: frontend
+        - namespace_selector:
+            name: monitoring
+  egress:
+    - to:
+        - pod_selector:
+            app: database
+        - pod_selector:
+            app: redis
+
+# Service Account
+service_account:
+  create: true
+  annotations:
+    iam.amazonaws.com/role: arn:aws:iam::123456789:role/api-role
+
+# Docker Configuration
+docker:
+  image:
+    repository: "myregistry.azurecr.io/api"
+    tag: "latest"
+    pull_policy: Always
+
+  build:
+    multi_stage: true
+    base_image: "node:20-alpine"
+    cache_from: true
+
+# CI/CD Configuration
+cicd:
+  provider: github-actions
+
+  stages:
+    - lint
+    - test
+    - build
+    - security_scan
+    - deploy
+
+  deployment:
+    strategy: rolling
+    approval_required: true
+    rollback_on_failure: true
+
+# Monitoring
+monitoring:
+  prometheus:
+    enabled: true
+    path: "/metrics"
+    port: 9090
+
+  logging:
+    format: json
+    level: info
+    aggregator: elasticsearch

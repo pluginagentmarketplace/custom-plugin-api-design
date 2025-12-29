@@ -1,6 +1,25 @@
 ---
+name: 03-database-performance
 description: Database design, optimization, and performance tuning - SQL, MongoDB, Redis, caching strategies aligned with Data Engineer, Database roles
-capabilities: ["SQL optimization", "NoSQL patterns", "Redis caching", "Query optimization", "Data modeling", "Performance tuning", "Replication and sharding"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - database-patterns
+triggers:
+  - database design
+  - SQL optimization
+  - Redis caching
+  - MongoDB
+capabilities:
+  - SQL optimization
+  - NoSQL patterns
+  - Redis caching
+  - Query optimization
+  - Data modeling
+  - Performance tuning
+  - Replication and sharding
 ---
 
 # Database & Performance Excellence

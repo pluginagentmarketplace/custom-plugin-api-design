@@ -1,6 +1,25 @@
 ---
+name: 01-api-architect
 description: Expert in API architecture, contract design, versioning strategies, and system design - aligned with API Design, System Design, and Software Architect roles from developer roadmap
-capabilities: ["API design patterns", "REST/GraphQL architecture", "Contract design", "Versioning strategies", "System design", "API maturity models", "Scalable architecture"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - api-architecture
+triggers:
+  - API design
+  - REST architecture
+  - GraphQL
+  - system design
+capabilities:
+  - API design patterns
+  - REST/GraphQL architecture
+  - Contract design
+  - Versioning strategies
+  - System design
+  - API maturity models
+  - Scalable architecture
 ---
 
 # API Design Architect

@@ -1,0 +1,162 @@
+# Database Configuration Template
+# Production-ready database settings
+
+version: "1.0.0"
+
+# PostgreSQL Configuration
+postgresql:
+  connection:
+    host: "${DB_HOST}"
+    port: 5432
+    database: "${DB_NAME}"
+    username: "${DB_USER}"
+    password: "${DB_PASS}"
+
+  pool:
+    min_connections: 2
+    max_connections: 20
+    idle_timeout_ms: 30000
+    connection_timeout_ms: 5000
+    max_lifetime_ms: 1800000
+
+  ssl:
+    enabled: true
+    reject_unauthorized: true
+    ca_path: "/etc/ssl/certs/rds-ca.pem"
+
+  logging:
+    log_queries: false
+    slow_query_threshold_ms: 1000
+
+# Redis Configuration
+redis:
+  connection:
+    host: "${REDIS_HOST}"
+    port: 6379
+    password: "${REDIS_PASS}"
+    db: 0
+
+  pool:
+    min_connections: 5
+    max_connections: 50
+
+  retry:
+    attempts: 3
+    delay_ms: 100
+
+  key_prefix: "app:"
+
+  ttl_defaults:
+    session: 86400      # 24 hours
+    cache: 3600         # 1 hour
+    rate_limit: 900     # 15 minutes
+    temp: 300           # 5 minutes
+
+# MongoDB Configuration
+mongodb:
+  connection:
+    uri: "${MONGO_URI}"
+    database: "${MONGO_DB}"
+
+  options:
+    max_pool_size: 10
+    min_pool_size: 2
+    max_idle_time_ms: 30000
+    server_selection_timeout_ms: 5000
+    retry_writes: true
+    w: "majority"
+
+  indexes:
+    auto_create: true
+    background: true
+
+# Indexing Strategy
+indexing:
+  guidelines:
+    - "Index columns used in WHERE clauses"
+    - "Index columns used in JOIN conditions"
+    - "Index columns used in ORDER BY"
+    - "Consider composite indexes for multi-column queries"
+    - "Avoid over-indexing (slows writes)"
+
+  composite_indexes:
+    example:
+      columns: ["user_id", "created_at"]
+      order: ["ASC", "DESC"]
+      where: "status = 'active'"
+
+  covering_indexes:
+    example:
+      columns: ["email", "status"]
+      include: ["id", "name"]
+
+# Query Optimization
+query_optimization:
+  pagination:
+    default_limit: 20
+    max_limit: 100
+    strategy: "cursor"  # cursor | offset | keyset
+
+  cursor:
+    encode: "base64"
+    fields: ["id"]
+
+  n_plus_one:
+    detection: true
+    prevention: "eager_loading"
+
+# Caching Strategy
+caching:
+  patterns:
+    cache_aside:
+      enabled: true
+      default_ttl: 3600
+
+    write_through:
+      enabled: false
+
+    write_behind:
+      enabled: false
+
+  invalidation:
+    on_update: true
+    on_delete: true
+    pattern_based: true
+
+  key_patterns:
+    entity: "{entity}:{id}"
+    list: "{entity}:list:{page}"
+    query: "{entity}:query:{hash}"
+
+# Replication
+replication:
+  enabled: true
+  read_replicas: 2
+
+  routing:
+    writes: "primary"
+    reads: "replica"  # replica | primary | round_robin
+
+  lag_threshold_ms: 1000
+
+# Backup
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # 2 AM daily
+  retention_days: 30
+  encrypted: true
+  destination: "s3://backups/database/"
+
+# Monitoring
+monitoring:
+  metrics:
+    - query_duration
+    - connection_pool_size
+    - slow_queries
+    - cache_hit_ratio
+    - replication_lag
+
+  alerts:
+    slow_query_threshold_ms: 5000
+    connection_pool_exhaustion: 80
+    replication_lag_ms: 5000

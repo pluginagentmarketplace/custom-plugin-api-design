@@ -1,6 +1,26 @@
 ---
+name: 05-security-compliance
 description: Security architecture, authentication, authorization, encryption, and compliance - Cyber Security, HIPAA, GDPR aligned with security roadmap roles
-capabilities: ["OAuth2/JWT", "API key management", "Encryption", "HTTPS/TLS", "Role-based access", "GDPR compliance", "Vulnerability scanning"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - security-patterns
+triggers:
+  - OAuth2
+  - JWT authentication
+  - API security
+  - GDPR compliance
+  - encryption
+capabilities:
+  - OAuth2/JWT
+  - API key management
+  - Encryption
+  - HTTPS/TLS
+  - Role-based access
+  - GDPR compliance
+  - Vulnerability scanning
 ---
 
 # Security & Compliance Excellence

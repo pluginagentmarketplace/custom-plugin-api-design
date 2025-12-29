@@ -1,6 +1,9 @@
 ---
 name: api-architecture
 description: REST, GraphQL, and hybrid API architecture patterns for building scalable and maintainable APIs
+sasmp_version: "1.3.0"
+bonded_agent: 01-api-architect
+bond_type: PRIMARY_BOND
 ---
 
 # API Architecture Skill

@@ -83,94 +83,34 @@
       "description": "REST, GraphQL, and hybrid API architecture patterns"
     },
     {
-      "name": "api-contracts",
-      "path": "./skills/api-architecture/SKILL-contracts.md",
-      "description": "API contracts, versioning, and interface design"
+      "name": "backend-patterns",
+      "path": "./skills/backend-patterns/SKILL.md",
+      "description": "Production-grade backend patterns for Node.js, Python, Go, Java"
     },
     {
-      "name": "backend-nodejs",
-      "path": "./skills/backend-patterns/SKILL-nodejs.md",
-      "description": "Node.js production patterns and best practices"
+      "name": "database-patterns",
+      "path": "./skills/database-patterns/SKILL.md",
+      "description": "Database design, optimization, caching with SQL, MongoDB, Redis"
     },
     {
-      "name": "backend-python",
-      "path": "./skills/backend-patterns/SKILL-python.md",
-      "description": "Python backend frameworks and patterns"
+      "name": "devops-patterns",
+      "path": "./skills/devops-patterns/SKILL.md",
+      "description": "Infrastructure and deployment with Docker, Kubernetes, CI/CD"
     },
     {
-      "name": "backend-go",
-      "path": "./skills/backend-patterns/SKILL-go.md",
-      "description": "Go backend patterns and concurrency"
+      "name": "security-patterns",
+      "path": "./skills/security-patterns/SKILL.md",
+      "description": "Security architecture, auth, encryption, and compliance"
     },
     {
-      "name": "database-sql",
-      "path": "./skills/database-patterns/SKILL-sql.md",
-      "description": "SQL databases, queries, and optimization"
+      "name": "frontend-patterns",
+      "path": "./skills/frontend-patterns/SKILL.md",
+      "description": "Frontend development and API integration patterns"
     },
     {
-      "name": "database-nosql",
-      "path": "./skills/database-patterns/SKILL-nosql.md",
-      "description": "NoSQL databases and distributed data patterns"
-    },
-    {
-      "name": "caching-redis",
-      "path": "./skills/database-patterns/SKILL-caching.md",
-      "description": "Caching strategies with Redis and in-memory stores"
-    },
-    {
-      "name": "devops-docker",
-      "path": "./skills/devops-patterns/SKILL-docker.md",
-      "description": "Docker containerization and best practices"
-    },
-    {
-      "name": "devops-kubernetes",
-      "path": "./skills/devops-patterns/SKILL-kubernetes.md",
-      "description": "Kubernetes orchestration and scaling"
-    },
-    {
-      "name": "devops-aws",
-      "path": "./skills/devops-patterns/SKILL-aws.md",
-      "description": "AWS services for API infrastructure"
-    },
-    {
-      "name": "security-auth",
-      "path": "./skills/security-patterns/SKILL-auth.md",
-      "description": "Authentication, OAuth2, JWT, API keys"
-    },
-    {
-      "name": "security-encryption",
-      "path": "./skills/security-patterns/SKILL-encryption.md",
-      "description": "Encryption, TLS, and data protection"
-    },
-    {
-      "name": "security-compliance",
-      "path": "./skills/security-patterns/SKILL-compliance.md",
-      "description": "GDPR, HIPAA, compliance frameworks"
-    },
-    {
-      "name": "frontend-react",
-      "path": "./skills/scaling-patterns/SKILL-react.md",
-      "description": "React and TypeScript for API consumption"
-    },
-    {
-      "name": "frontend-next",
-      "path": "./skills/scaling-patterns/SKILL-next.md",
-      "description": "Next.js and full-stack API integration"
-    },
-    {
-      "name": "scaling-microservices",
-      "path": "./skills/scaling-patterns/SKILL-microservices.md",
-      "description": "Microservices architecture and patterns"
-    },
-    {
-      "name": "scaling-async",
-      "path": "./skills/scaling-patterns/SKILL-async.md",
-      "description": "Async operations, job queues, event-driven"
-    },
-    {
-      "name": "scaling-ai-agents",
-      "path": "./skills/scaling-patterns/SKILL-ai-agents.md",
-      "description": "AI agents, LLM APIs, and integration"
+      "name": "scaling-patterns",
+      "path": "./skills/scaling-patterns/SKILL.md",
+      "description": "Microservices, event-driven, and distributed system patterns"
     }
   ],
   "hooks": {

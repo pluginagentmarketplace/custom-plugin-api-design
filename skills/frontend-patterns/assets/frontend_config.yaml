@@ -1,0 +1,161 @@
+# Frontend Configuration Template
+# React + TypeScript API integration settings
+
+version: "1.0.0"
+
+# Data Fetching
+data_fetching:
+  library: "tanstack-query"  # tanstack-query | swr | custom
+
+  tanstack_query:
+    stale_time_ms: 300000      # 5 minutes
+    cache_time_ms: 600000      # 10 minutes
+    retry: 3
+    retry_delay: 1000
+    refetch_on_window_focus: false
+    refetch_on_reconnect: true
+
+  swr:
+    dedupe_interval_ms: 2000
+    revalidate_on_focus: false
+    revalidate_on_reconnect: true
+    error_retry_count: 3
+
+  query_keys:
+    users:
+      all: ["users"]
+      list: ["users", "list"]
+      detail: ["users", "detail"]
+    posts:
+      all: ["posts"]
+      list: ["posts", "list"]
+      detail: ["posts", "detail"]
+
+# State Management
+state_management:
+  library: "zustand"  # zustand | redux-toolkit | context
+
+  zustand:
+    persist: true
+    storage: "localStorage"
+    devtools: true
+
+  redux_toolkit:
+    devtools: true
+    immutable_check: true
+    serializable_check: true
+
+  stores:
+    - name: auth
+      persist: true
+      state:
+        - token
+        - user
+    - name: ui
+      persist: false
+      state:
+        - theme
+        - sidebar_open
+
+# API Client
+api_client:
+  base_url: "${API_URL}"
+  timeout_ms: 30000
+
+  headers:
+    content_type: "application/json"
+    authorization_prefix: "Bearer"
+
+  interceptors:
+    request:
+      - add_auth_token
+      - add_request_id
+    response:
+      - handle_401
+      - transform_data
+
+  error_handling:
+    global_handler: true
+    toast_errors: true
+    log_errors: true
+
+# TypeScript
+typescript:
+  strict: true
+
+  api_types:
+    generate: true
+    source: "openapi"  # openapi | graphql
+    output: "src/types/api.ts"
+
+  form_types:
+    library: "zod"  # zod | yup | io-ts
+
+# Performance
+performance:
+  code_splitting:
+    routes: true
+    components: true
+
+  lazy_loading:
+    images: true
+    components: true
+
+  memoization:
+    use_memo: true
+    use_callback: true
+    react_memo: true
+
+  bundle:
+    analyze: true
+    chunk_size_warning_kb: 500
+
+# Error Handling
+error_handling:
+  error_boundary: true
+  fallback_ui: true
+
+  reporting:
+    enabled: true
+    service: "sentry"
+
+  retry:
+    network_errors: true
+    max_retries: 3
+
+# Loading States
+loading:
+  global_loading: true
+  skeleton_screens: true
+
+  indicators:
+    spinner: true
+    progress_bar: true
+
+# Caching
+caching:
+  http:
+    cache_control: true
+    etag: true
+
+  local:
+    storage: "localStorage"
+    max_size_mb: 5
+
+  invalidation:
+    on_mutation: true
+    manual: true
+
+# GraphQL (if applicable)
+graphql:
+  enabled: false
+  client: "apollo"  # apollo | urql
+
+  apollo:
+    cache: "in-memory"
+    devtools: true
+
+  operations:
+    queries: "src/graphql/queries"
+    mutations: "src/graphql/mutations"
+    fragments: "src/graphql/fragments"

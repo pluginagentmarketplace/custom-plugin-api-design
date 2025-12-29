@@ -1,0 +1,194 @@
+# Security Configuration Template
+# Production-ready security settings
+
+version: "1.0.0"
+
+# Authentication
+authentication:
+  jwt:
+    secret: "${JWT_SECRET}"
+    algorithm: "HS256"
+    expires_in: "24h"
+    refresh_expires_in: "7d"
+    issuer: "api.example.com"
+    audience: "web-client"
+
+  oauth2:
+    providers:
+      google:
+        client_id: "${GOOGLE_CLIENT_ID}"
+        client_secret: "${GOOGLE_CLIENT_SECRET}"
+        scopes: ["profile", "email"]
+      github:
+        client_id: "${GITHUB_CLIENT_ID}"
+        client_secret: "${GITHUB_CLIENT_SECRET}"
+        scopes: ["user:email"]
+
+  api_keys:
+    header_name: "X-API-Key"
+    hash_algorithm: "sha256"
+    rotation_days: 90
+
+# Authorization
+authorization:
+  type: "rbac"  # rbac | abac
+
+  roles:
+    admin:
+      permissions: ["*"]
+    editor:
+      permissions: ["read", "write"]
+    viewer:
+      permissions: ["read"]
+
+  resources:
+    users:
+      admin: ["read", "write", "delete"]
+      editor: ["read", "write"]
+      viewer: ["read"]
+
+# Rate Limiting
+rate_limiting:
+  enabled: true
+
+  global:
+    window_ms: 900000  # 15 minutes
+    max_requests: 1000
+
+  endpoints:
+    auth:
+      window_ms: 900000
+      max_requests: 5
+      skip_successful: true
+
+    api:
+      window_ms: 60000
+      max_requests: 100
+
+  by_tier:
+    free:
+      requests_per_hour: 100
+    pro:
+      requests_per_hour: 10000
+    enterprise:
+      requests_per_hour: 100000
+
+# Security Headers
+headers:
+  helmet:
+    content_security_policy:
+      directives:
+        default_src: ["'self'"]
+        script_src: ["'self'"]
+        style_src: ["'self'", "'unsafe-inline'"]
+        img_src: ["'self'", "data:", "https:"]
+
+    hsts:
+      max_age: 31536000
+      include_subdomains: true
+      preload: true
+
+    frame_guard: "deny"
+    no_sniff: true
+    xss_filter: true
+
+# Input Validation
+validation:
+  sanitize_html: true
+  escape_special_chars: true
+  max_input_length: 10000
+
+  patterns:
+    email: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    password: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$"
+    uuid: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+
+# Encryption
+encryption:
+  at_rest:
+    algorithm: "aes-256-gcm"
+    key: "${ENCRYPTION_KEY}"
+
+  in_transit:
+    tls_version: "1.3"
+    cipher_suites:
+      - "TLS_AES_256_GCM_SHA384"
+      - "TLS_CHACHA20_POLY1305_SHA256"
+
+# CORS
+cors:
+  enabled: true
+  origins: []  # Configure per environment
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  allowed_headers:
+    - "Content-Type"
+    - "Authorization"
+    - "X-Request-ID"
+  credentials: true
+  max_age: 86400
+
+# Audit Logging
+audit:
+  enabled: true
+
+  events:
+    - authentication
+    - authorization
+    - data_access
+    - data_modification
+    - configuration_change
+
+  fields:
+    - timestamp
+    - user_id
+    - action
+    - resource
+    - ip_address
+    - user_agent
+    - status
+
+  storage:
+    type: "elasticsearch"
+    retention_days: 365
+
+# Secrets Management
+secrets:
+  provider: "vault"  # vault | aws_secrets | env
+
+  vault:
+    address: "${VAULT_ADDR}"
+    token: "${VAULT_TOKEN}"
+    path: "secret/app"
+
+  rotation:
+    enabled: true
+    interval_days: 90
+    notification_days: 14
+
+# Compliance
+compliance:
+  gdpr:
+    enabled: true
+    data_retention_days: 365
+    right_to_erasure: true
+    data_portability: true
+
+  hipaa:
+    enabled: false
+    phi_encryption: true
+    audit_controls: true
+
+# Vulnerability Scanning
+scanning:
+  dependencies:
+    enabled: true
+    frequency: "daily"
+
+  containers:
+    enabled: true
+    block_critical: true
+
+  code:
+    enabled: true
+    sast: true
+    dast: false

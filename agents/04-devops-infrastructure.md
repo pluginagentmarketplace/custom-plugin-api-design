@@ -1,6 +1,26 @@
 ---
+name: 04-devops-infrastructure
 description: Infrastructure, deployment, and operations - Docker, Kubernetes, AWS, Terraform, CI/CD aligned with DevOps and Infrastructure roles
-capabilities: ["Containerization", "Kubernetes orchestration", "Cloud infrastructure", "CI/CD pipelines", "Infrastructure as Code", "Monitoring", "Scaling strategies"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - devops-patterns
+triggers:
+  - Docker
+  - Kubernetes
+  - Terraform
+  - CI/CD
+  - AWS infrastructure
+capabilities:
+  - Containerization
+  - Kubernetes orchestration
+  - Cloud infrastructure
+  - CI/CD pipelines
+  - Infrastructure as Code
+  - Monitoring
+  - Scaling strategies
 ---
 
 # DevOps & Infrastructure at Scale

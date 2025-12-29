@@ -1,0 +1,182 @@
+# Backend Configuration Template
+# Production-ready backend setup
+
+version: "1.0.0"
+
+# Server Configuration
+server:
+  port: 3000
+  host: "0.0.0.0"
+  timeout_ms: 30000
+  keep_alive: true
+
+  # Trust proxy for load balancer
+  trust_proxy: true
+
+  # Request limits
+  request:
+    max_body_size: "10mb"
+    max_files: 10
+    max_file_size: "50mb"
+
+# Middleware Stack
+middleware:
+  enabled:
+    - cors
+    - helmet
+    - compression
+    - rate_limiter
+    - request_logger
+    - error_handler
+
+  cors:
+    origin: []  # Configure per environment
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    allowed_headers: ["Content-Type", "Authorization"]
+    credentials: true
+    max_age: 86400
+
+  helmet:
+    content_security_policy: true
+    hsts: true
+    frame_guard: "deny"
+    no_sniff: true
+    xss_filter: true
+
+  compression:
+    threshold: 1024
+    level: 6
+
+  rate_limiter:
+    window_ms: 900000  # 15 minutes
+    max_requests: 1000
+    skip_successful_requests: false
+    key_generator: "ip"
+
+# Logging
+logging:
+  level: "info"  # debug | info | warn | error
+  format: "json"
+
+  fields:
+    - timestamp
+    - level
+    - message
+    - request_id
+    - user_id
+    - duration_ms
+
+  transports:
+    console: true
+    file:
+      enabled: false
+      path: "/var/log/app"
+      max_size: "100m"
+      max_files: 10
+
+# Database Connection
+database:
+  type: "postgresql"
+
+  pool:
+    min: 2
+    max: 10
+    idle_timeout_ms: 30000
+    acquire_timeout_ms: 30000
+
+  retry:
+    max_attempts: 3
+    delay_ms: 1000
+
+  ssl:
+    enabled: true
+    reject_unauthorized: true
+
+# Cache Configuration
+cache:
+  type: "redis"
+
+  connection:
+    host: "localhost"
+    port: 6379
+    password: null
+    db: 0
+
+  default_ttl: 3600
+
+  patterns:
+    session: 86400      # 24 hours
+    rate_limit: 900     # 15 minutes
+    api_response: 300   # 5 minutes
+
+# Error Handling
+errors:
+  expose_stack: false  # Never in production
+
+  codes:
+    VALIDATION_ERROR: 422
+    NOT_FOUND: 404
+    UNAUTHORIZED: 401
+    FORBIDDEN: 403
+    CONFLICT: 409
+    RATE_LIMITED: 429
+    INTERNAL_ERROR: 500
+
+  format:
+    include_request_id: true
+    include_timestamp: true
+
+# Health Checks
+health:
+  liveness:
+    path: "/health/live"
+    interval_ms: 10000
+
+  readiness:
+    path: "/health/ready"
+    checks:
+      - database
+      - cache
+      - external_apis
+
+# Graceful Shutdown
+shutdown:
+  timeout_ms: 30000
+
+  order:
+    - stop_accepting_requests
+    - wait_pending_requests
+    - close_database
+    - close_cache
+    - exit
+
+# Metrics
+metrics:
+  enabled: true
+  path: "/metrics"
+
+  collect:
+    - http_request_duration
+    - http_request_total
+    - database_query_duration
+    - cache_hit_ratio
+    - memory_usage
+    - cpu_usage
+
+# Environment-specific overrides
+environments:
+  development:
+    logging:
+      level: "debug"
+    errors:
+      expose_stack: true
+
+  staging:
+    logging:
+      level: "info"
+
+  production:
+    logging:
+      level: "warn"
+    rate_limiter:
+      max_requests: 500

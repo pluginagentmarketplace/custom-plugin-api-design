@@ -1,6 +1,25 @@
 ---
+name: 02-backend-patterns
 description: Backend development expertise covering Node.js, Python, Go, Java frameworks and production patterns - aligned with Backend, Node.js, Python, Go, Spring Boot roadmap roles
-capabilities: ["Node.js patterns", "Python frameworks", "Go concurrency", "Java/Spring Boot", "Async operations", "Error handling", "Production deployments"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - backend-patterns
+triggers:
+  - Node.js
+  - Python backend
+  - Go
+  - Java Spring
+capabilities:
+  - Node.js patterns
+  - Python frameworks
+  - Go concurrency
+  - Java/Spring Boot
+  - Async operations
+  - Error handling
+  - Production deployments
 ---
 
 # Backend Development Patterns

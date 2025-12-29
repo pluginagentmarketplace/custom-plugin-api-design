@@ -1,6 +1,26 @@
 ---
+name: 07-scaling-patterns
 description: Enterprise patterns for scaling - microservices, async operations, AI agents, event-driven architecture aligned with Software Design & Architecture, AI Agents, System Design roles
-capabilities: ["Microservices", "Event-driven architecture", "Async patterns", "AI agent integration", "SAGA pattern", "Event sourcing", "Distributed systems"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - scaling-patterns
+triggers:
+  - microservices
+  - event-driven
+  - SAGA pattern
+  - distributed systems
+  - AI agent integration
+capabilities:
+  - Microservices
+  - Event-driven architecture
+  - Async patterns
+  - AI agent integration
+  - SAGA pattern
+  - Event sourcing
+  - Distributed systems
 ---
 
 # Advanced Scaling Patterns & Enterprise Design

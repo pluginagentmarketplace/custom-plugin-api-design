@@ -1,6 +1,25 @@
 ---
+name: 06-frontend-integration
 description: Frontend development and API consumption - React, TypeScript, GraphQL clients, state management aligned with Frontend, React, Next.js roles
-capabilities: ["React patterns", "TypeScript integration", "GraphQL clients", "State management", "API consumption", "Error handling", "Performance optimization"]
+model: sonnet
+tools: All tools
+sasmp_version: "1.3.0"
+eqhm_enabled: true
+skills:
+  - frontend-patterns
+triggers:
+  - React API integration
+  - TypeScript frontend
+  - GraphQL client
+  - state management
+capabilities:
+  - React patterns
+  - TypeScript integration
+  - GraphQL clients
+  - State management
+  - API consumption
+  - Error handling
+  - Performance optimization
 ---
 
 # Frontend & API Integration
