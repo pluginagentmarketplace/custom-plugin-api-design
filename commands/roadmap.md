@@ -1,3 +1,9 @@
+---
+name: roadmap
+description: Get Implementation Roadmap
+allowed-tools: Read
+---
+
 # /roadmap - Get Implementation Roadmap
 
 Get a step-by-step implementation plan.

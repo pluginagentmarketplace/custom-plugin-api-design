@@ -1,251 +1,262 @@
-# Custom Plugin API Design
+<div align="center">
 
-**Enterprise-grade framework for designing, building, and scaling custom plugin systems.**
+<!-- Animated Typing Banner -->
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=28&duration=3000&pause=1000&color=2E9EF7&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=100&lines=Api+Design+Assistant;7+Agents+%7C+7+Skills;Claude+Code+Plugin" alt="Api Design Assistant" />
 
-Built on expertise from **65+ developer roadmap roles**: API Design, System Design, Backend (Node.js, Python, Go, Java), DevOps (Docker, Kubernetes, AWS), Security, Frontend (React, TypeScript), and Advanced Patterns.
+<br/>
 
-## Quick Start
+<!-- Badge Row 1: Status Badges -->
+[![Version](https://img.shields.io/badge/Version-2.0.0-blue?style=for-the-badge)](https://github.com/pluginagentmarketplace/custom-plugin-api-design/releases)
+[![License](https://img.shields.io/badge/License-Custom-yellow?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Production-brightgreen?style=for-the-badge)](#)
+[![SASMP](https://img.shields.io/badge/SASMP-v1.3.0-blueviolet?style=for-the-badge)](#)
 
-```bash
-claude-code plugin add custom-plugin-api-design
-```
+<!-- Badge Row 2: Content Badges -->
+[![Agents](https://img.shields.io/badge/Agents-7-orange?style=flat-square&logo=robot)](#-agents)
+[![Skills](https://img.shields.io/badge/Skills-7-purple?style=flat-square&logo=lightning)](#-skills)
+[![Commands](https://img.shields.io/badge/Commands-4-green?style=flat-square&logo=terminal)](#-commands)
 
-## What You Get
+<br/>
 
-### 7 Expert Agents (1000+ hours of best practices)
-
-1. **API Design Architect** - REST, GraphQL, system design
-2. **Backend Development** - Node.js, Python, Go, Java patterns
-3. **Database & Performance** - SQL, NoSQL, Redis, optimization
-4. **DevOps & Infrastructure** - Docker, Kubernetes, AWS, Terraform, CI/CD
-5. **Security & Compliance** - OAuth2, JWT, encryption, GDPR, HIPAA
-6. **Frontend & Integration** - React, TypeScript, GraphQL clients
-7. **Advanced Scaling** - Microservices, async patterns, AI agents
-
-### 4 Interactive Commands
-
-- **/architect** - Design your plugin system from scratch
-- **/audit** - Review your API design
-- **/roadmap** - Get implementation roadmap
-- **/secure** - Security hardening guide
-
-### 19+ Skills (Quick Reference)
-
-API Architecture • REST/GraphQL • Node.js • Python • Go • SQL • NoSQL • Caching • Docker • Kubernetes • AWS • OAuth2 • Encryption • Compliance • React • Next.js • Microservices • Async Patterns • AI Agents
-
-## Why This Plugin?
-
-✅ **Comprehensive** - All aspects of plugin API systems
-✅ **Modern** - Latest patterns and best practices
-✅ **Practical** - Code examples for every concept
-✅ **Interactive** - Commands guide your decisions
-✅ **Production-Ready** - Enterprise-scale patterns
-✅ **Developer Roadmap Aligned** - References 65+ industry roles
-
-## Use Cases
-
-### Building New Plugin Systems
-```
-/architect → Design system
-         → Review with /audit
-         → Get roadmap with /roadmap
-         → Harden with /secure
-```
-
-### Improving Existing Systems
-```
-/audit → Identify issues
-      → Reference agents for solutions
-      → Implement improvements
-```
-
-### Learning & Reference
-```
-Browse agents for comprehensive guidance
-Use skills for quick reference
-Check code examples in every agent
-```
-
-## Architecture
-
-```
-Your Plugin System Needs
-         ↓
-  /architect command
-         ↓
-  7 Expert Agents (in parallel)
-  ├─ API Design (contracts, versioning)
-  ├─ Backend (Node/Python/Go/Java)
-  ├─ Database (optimization, caching)
-  ├─ DevOps (containerization, orchestration)
-  ├─ Security (auth, encryption, compliance)
-  ├─ Frontend (React, GraphQL consumption)
-  └─ Scaling (microservices, async, AI)
-         ↓
-  Complete Design + Roadmap
-         ↓
-  /audit → /secure → /roadmap
-         ↓
-  Ready to Build!
-```
-
-## Key Topics
-
-### API Design
-- REST principles (Level 0-3 maturity)
-- GraphQL schema design
-- API contracts and versioning
-- Error handling standards
-- Pagination and filtering
-
-### Backend Development
-- **Node.js**: Express, NestJS, Fastify patterns
-- **Python**: Django, FastAPI async patterns
-- **Go**: Goroutines, concurrency, performance
-- **Java**: Spring Boot, enterprise patterns
-- Error handling and logging
-
-### Database & Performance
-- SQL optimization and indexing
-- NoSQL patterns and denormalization
-- Redis caching strategies
-- Query optimization
-- Connection pooling
-
-### DevOps & Infrastructure
-- Docker multi-stage builds
-- Kubernetes deployments and scaling
-- Infrastructure as Code (Terraform)
-- CI/CD pipelines (GitHub Actions)
-- Monitoring (Prometheus, ELK)
-
-### Security
-- OAuth 2.0 and JWT
-- API key management
-- TLS/HTTPS configuration
-- Encryption at rest
-- GDPR and HIPAA compliance
-
-### Frontend
-- React + TypeScript patterns
-- TanStack Query, SWR, Apollo Client
-- State management (Zustand, Redux)
-- Error handling
-- Performance optimization
-
-### Advanced Patterns
-- Microservices architecture
-- Event-driven systems
-- SAGA pattern for transactions
-- CQRS and Event Sourcing
-- Circuit breaker pattern
-- AI agent integration
-
-## Example: Building an Order Processing API
-
-```
-1. /architect
-   Input: "Order processing system, 10k DAU, need plugin support for payment"
-   Output: Complete architecture with 7 agent perspectives
-
-2. Review each agent's guidance:
-   - API Architect: REST endpoints, contracts
-   - Backend: Node.js + TypeScript patterns
-   - Database: Order storage optimization
-   - DevOps: Docker/K8s deployment
-   - Security: PCI DSS compliance
-   - Frontend: React client for order creation
-   - Scaling: Event-driven order processing
-
-3. /roadmap
-   Output: Week-by-week implementation plan
-
-4. /audit
-   Input: Your initial API design
-   Output: Issues and improvements
-
-5. /secure
-   Input: Your security approach
-   Output: Hardening recommendations
-
-6. Build with confidence!
-```
-
-## Developer Roadmap Alignment
-
-This plugin synthesizes best practices from roles including:
-
-- **Core:** API Design, System Design, Software Architect, Backend, DevOps, Frontend
-- **Languages:** Node.js, Python, Go, Java, TypeScript, JavaScript
-- **Platforms:** AWS, Docker, Kubernetes, Linux
-- **Specialties:** Security, Database, QA, AI/ML
-- **Plus 45+ more roles** for comprehensive coverage
-
-## Learning Path
-
-### Beginner (Week 1)
-1. Agent 1: API Design Fundamentals
-2. Agent 2: Pick your backend (Node/Python/Go)
-3. Agent 6: Frontend integration
-4. Build simple plugin API
-
-### Intermediate (Week 2-3)
-1. Agent 3: Database design and optimization
-2. Agent 4: DevOps fundamentals
-3. Agent 5: Authentication basics
-4. Deploy to production
-
-### Advanced (Week 4+)
-1. Agent 7: Scaling patterns
-2. Study all agents comprehensively
-3. Build enterprise system
-4. Reference agents as needed
-
-## Interactive Examples
-
-Each agent provides:
-- Code examples in Node.js, Python, Go, Java
-- Configuration examples (Docker, Kubernetes, Terraform)
-- Best practices checklists
-- Common pitfalls and solutions
-
-## Getting Help
-
-Each agent provides:
-- Detailed explanations of concepts
-- Real-world examples
-- Links to relevant tools and libraries
-- Checklist for implementation
-
-## Commands Cheat Sheet
-
-| Command | Use When |
-|---------|----------|
-| `/architect` | Starting a new system |
-| `/audit` | Have a design to review |
-| `/roadmap` | Ready to plan implementation |
-| `/secure` | Need security hardening |
-
-## Next Steps
-
-1. **Load the plugin:** `claude-code plugin add custom-plugin-api-design`
-2. **Start designing:** `/architect`
-3. **Explore agents:** Read any agent for deep knowledge
-4. **Review your work:** `/audit`
-5. **Plan implementation:** `/roadmap`
-6. **Harden security:** `/secure`
-
-## Support
-
-- Check relevant agent for your topic
-- Use skills for quick reference
-- Try commands for interactive guidance
-- Review code examples in each agent
-
-## License
-
-MIT - Free for personal and commercial use
+<!-- Quick CTA Row -->
+[📦 **Install Now**](#-quick-start) · [🤖 **Explore Agents**](#-agents) · [📖 **Documentation**](#-documentation) · [⭐ **Star this repo**](https://github.com/pluginagentmarketplace/custom-plugin-api-design)
 
 ---
 
-**Ready to design enterprise-grade plugin systems?** Try `/architect` now!
+### What is this?
+
+> **Api Design Assistant** is a Claude Code plugin with **7 agents** and **7 skills** for api design development.
+
+</div>
+
+---
+
+## 📑 Table of Contents
+
+<details>
+<summary>Click to expand</summary>
+
+- [Quick Start](#-quick-start)
+- [Features](#-features)
+- [Agents](#-agents)
+- [Skills](#-skills)
+- [Commands](#-commands)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+</details>
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Claude Code CLI v2.0.27+
+- Active Claude subscription
+
+### Installation (Choose One)
+
+<details open>
+<summary><strong>Option 1: From Marketplace (Recommended)</strong></summary>
+
+```bash
+# Step 1️⃣ Add the marketplace
+/plugin add marketplace pluginagentmarketplace/custom-plugin-api-design
+
+# Step 2️⃣ Install the plugin
+/plugin install custom-plugin-api-design@pluginagentmarketplace-api-design
+
+# Step 3️⃣ Restart Claude Code
+# Close and reopen your terminal/IDE
+```
+
+</details>
+
+<details>
+<summary><strong>Option 2: Local Installation</strong></summary>
+
+```bash
+# Clone the repository
+git clone https://github.com/pluginagentmarketplace/custom-plugin-api-design.git
+cd custom-plugin-api-design
+
+# Load locally
+/plugin load .
+
+# Restart Claude Code
+```
+
+</details>
+
+### ✅ Verify Installation
+
+After restart, you should see these agents:
+
+```
+custom-plugin-api-design:02-backend-patterns
+custom-plugin-api-design:05-security-compliance
+custom-plugin-api-design:04-devops-infrastructure
+custom-plugin-api-design:06-frontend-integration
+custom-plugin-api-design:03-database-performance
+... and 2 more
+```
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **7 Agents** | Specialized AI agents for api design tasks |
+| 🛠️ **7 Skills** | Reusable capabilities with Golden Format |
+| ⌨️ **4 Commands** | Quick slash commands |
+| 🔄 **SASMP v1.3.0** | Full protocol compliance |
+
+---
+
+## 🤖 Agents
+
+### 7 Specialized Agents
+
+| # | Agent | Purpose |
+|---|-------|---------|
+| 1 | **02-backend-patterns** | Backend development expertise covering Node.js, Python, Go,  |
+| 2 | **05-security-compliance** | Security architecture, authentication, authorization, encryp |
+| 3 | **04-devops-infrastructure** | Infrastructure, deployment, and operations - Docker, Kuberne |
+| 4 | **06-frontend-integration** | Frontend development and API consumption - React, TypeScript |
+| 5 | **03-database-performance** | Database design, optimization, and performance tuning - SQL, |
+| 6 | **07-scaling-patterns** | Enterprise patterns for scaling - microservices, async opera |
+| 7 | **01-api-architect** | Expert in API architecture, contract design, versioning stra |
+
+---
+
+## 🛠️ Skills
+
+### Available Skills
+
+| Skill | Description | Invoke |
+|-------|-------------|--------|
+| `scaling-patterns` | Enterprise scaling patterns for microservices, event-driven  | `Skill("custom-plugin-api-design:scaling-patterns")` |
+| `database-patterns` | Database design, optimization, and caching strategies for SQ | `Skill("custom-plugin-api-design:database-patterns")` |
+| `backend-patterns` | Production-grade backend patterns for Node.js, Python, Go, a | `Skill("custom-plugin-api-design:backend-patterns")` |
+| `api-architecture` | REST, GraphQL, and hybrid API architecture patterns for buil | `Skill("custom-plugin-api-design:api-architecture")` |
+| `devops-patterns` | Infrastructure, deployment, and operations patterns for Dock | `Skill("custom-plugin-api-design:devops-patterns")` |
+| `security-patterns` | Security architecture, authentication, authorization, and co | `Skill("custom-plugin-api-design:security-patterns")` |
+| `frontend-patterns` | Frontend development and API integration patterns for React, | `Skill("custom-plugin-api-design:frontend-patterns")` |
+
+---
+
+## ⌨️ Commands
+
+| Command | Description |
+|---------|-------------|
+| `/architect` | Design Your Plugin API System |
+| `/audit` | Audit Your API Design |
+| `/roadmap` | Get Implementation Roadmap |
+| `/secure` | Security & Compliance Guide |
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [CHANGELOG.md](CHANGELOG.md) | Version history |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
+| [LICENSE](LICENSE) | License information |
+
+---
+
+## 📁 Project Structure
+
+<details>
+<summary>Click to expand</summary>
+
+```
+custom-plugin-api-design/
+├── 📁 .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
+├── 📁 agents/              # 7 agents
+├── 📁 skills/              # 7 skills (Golden Format)
+├── 📁 commands/            # 4 commands
+├── 📁 hooks/
+├── 📄 README.md
+├── 📄 CHANGELOG.md
+└── 📄 LICENSE
+```
+
+</details>
+
+---
+
+## 📅 Metadata
+
+| Field | Value |
+|-------|-------|
+| **Version** | 2.0.0 |
+| **Last Updated** | 2025-12-29 |
+| **Status** | Production Ready |
+| **SASMP** | v1.3.0 |
+| **Agents** | 7 |
+| **Skills** | 7 |
+| **Commands** | 4 |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md).
+
+1. Fork the repository
+2. Create your feature branch
+3. Follow the Golden Format for new skills
+4. Submit a pull request
+
+---
+
+## ⚠️ Security
+
+> **Important:** This repository contains third-party code and dependencies.
+>
+> - ✅ Always review code before using in production
+> - ✅ Check dependencies for known vulnerabilities
+> - ✅ Follow security best practices
+> - ✅ Report security issues privately via [Issues](../../issues)
+
+---
+
+## 📝 License
+
+Copyright © 2025 **Dr. Umit Kacar** & **Muhsin Elcicek**
+
+Custom License - See [LICENSE](LICENSE) for details.
+
+---
+
+## 👥 Contributors
+
+<table>
+<tr>
+<td align="center">
+<strong>Dr. Umit Kacar</strong><br/>
+Senior AI Researcher & Engineer
+</td>
+<td align="center">
+<strong>Muhsin Elcicek</strong><br/>
+Senior Software Architect
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Claude Code Community**
+
+[![GitHub](https://img.shields.io/badge/GitHub-pluginagentmarketplace-black?style=for-the-badge&logo=github)](https://github.com/pluginagentmarketplace)
+
+</div>

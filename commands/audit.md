@@ -1,3 +1,9 @@
+---
+name: audit
+description: Audit Your API Design
+allowed-tools: Read
+---
+
 # /audit - Audit Your API Design
 
 Comprehensive review of your API design.

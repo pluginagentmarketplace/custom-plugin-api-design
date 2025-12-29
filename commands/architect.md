@@ -1,3 +1,9 @@
+---
+name: architect
+description: Design Your Plugin API System
+allowed-tools: Read
+---
+
 # /architect - Design Your Plugin API System
 
 Design a complete plugin system architecture.

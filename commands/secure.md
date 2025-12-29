@@ -1,3 +1,9 @@
+---
+name: secure
+description: Security & Compliance Guide
+allowed-tools: Read
+---
+
 # /secure - Security & Compliance Guide
 
 Security audit and hardening recommendations.

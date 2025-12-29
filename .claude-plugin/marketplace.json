@@ -1,0 +1,15 @@
+{
+  "name": "pluginagentmarketplace-api-design",
+  "owner": {
+    "name": "Plugin Agent Marketplace",
+    "email": "pluginagentmarketplace@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "custom-plugin-api-design",
+      "source": "./",
+      "description": "Claude Code plugin for api design development",
+      "version": "1.0.0"
+    }
+  ]
+}
