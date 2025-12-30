@@ -1,9 +1,39 @@
 ---
 name: database-patterns
 description: Database design, optimization, and caching strategies for SQL, NoSQL, and Redis
-sasmp_version: "1.3.0"
+sasmp_version: "2.0.0"
 bonded_agent: 03-database-performance
 bond_type: PRIMARY_BOND
+
+# Production-Grade Metadata
+parameters:
+  - name: database_type
+    type: string
+    required: true
+    validation: "^(postgresql|mysql|mongodb|redis|elasticsearch)$"
+    description: Database type
+  - name: operation
+    type: string
+    required: false
+    validation: "^(design|optimize|debug|migrate)$"
+    description: Operation type
+
+validation_rules:
+  - All queries must use indexes for large tables
+  - N+1 queries must be avoided
+  - Connection pooling must be configured
+
+retry_logic:
+  max_attempts: 3
+  backoff_type: exponential
+  initial_delay_ms: 1000
+  max_delay_ms: 10000
+
+logging_hooks:
+  on_start: true
+  on_success: true
+  on_failure: true
+  metrics: [query_duration, cache_hit_rate, connection_pool_usage]
 ---
 
 # Database Patterns Skill
@@ -21,31 +51,26 @@ Master database patterns for high-performance applications.
 ### NoSQL (MongoDB)
 - Document design patterns
 - Aggregation pipelines
-- Denormalization strategies
 - Sharding and replication
 
 ### Caching (Redis)
 - Cache-aside pattern
 - Write-through caching
 - TTL management
-- Invalidation strategies
 
 ## Key Patterns
 
 ### N+1 Query Prevention
 ```javascript
 // BAD: N+1 queries
-const users = await db.query('SELECT * FROM users');
 for (const user of users) {
-  user.teams = await db.query('SELECT * FROM user_teams WHERE user_id = ?', [user.id]);
+  user.teams = await db.query('SELECT * FROM teams WHERE user_id = ?', [user.id]);
 }
 
-// GOOD: Single query with JOIN
+// GOOD: Single JOIN
 const users = await db.query(`
   SELECT u.*, t.name as team_name
-  FROM users u
-  LEFT JOIN user_teams ut ON u.id = ut.user_id
-  LEFT JOIN teams t ON ut.team_id = t.id
+  FROM users u LEFT JOIN teams t ON u.id = t.user_id
 `);
 ```
 
@@ -68,7 +93,30 @@ async function getUser(userId) {
 - [ ] Pagination implemented
 - [ ] Connection pooling configured
 - [ ] Caching strategy defined
-- [ ] Query optimization done
-- [ ] Monitoring in place
+
+## Unit Test Template
+
+```javascript
+describe('database-patterns skill', () => {
+  test('cache returns data on hit', async () => {
+    await redis.set('user:123', JSON.stringify({ id: '123' }));
+    const result = await getUser('123');
+    expect(result.id).toBe('123');
+  });
+
+  test('cache miss fetches from DB', async () => {
+    const result = await getUser('456');
+    expect(result).toBeDefined();
+  });
+});
+```
+
+## Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Slow queries | Missing index | Add appropriate index |
+| Connection timeout | Pool exhausted | Increase pool size |
+| Lock timeout | Long transaction | Reduce transaction scope |
 
 See Agent 3: Database Performance for detailed guidance.

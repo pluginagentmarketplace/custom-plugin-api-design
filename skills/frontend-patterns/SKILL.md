@@ -1,9 +1,39 @@
 ---
 name: frontend-patterns
 description: Frontend development and API integration patterns for React, TypeScript, and state management
-sasmp_version: "1.3.0"
+sasmp_version: "2.0.0"
 bonded_agent: 06-frontend-integration
 bond_type: PRIMARY_BOND
+
+# Production-Grade Metadata
+parameters:
+  - name: framework
+    type: string
+    required: true
+    validation: "^(react|nextjs|vue|angular|svelte)$"
+    description: Frontend framework
+  - name: api_type
+    type: string
+    required: false
+    validation: "^(REST|GraphQL|both)$"
+    description: API type
+
+validation_rules:
+  - API calls must have error handling
+  - Loading states must be implemented
+  - Type safety must be enforced
+
+retry_logic:
+  max_attempts: 3
+  backoff_type: exponential
+  initial_delay_ms: 1000
+  max_delay_ms: 10000
+
+logging_hooks:
+  on_start: true
+  on_success: true
+  on_failure: true
+  metrics: [api_latency, cache_hit_rate, error_rate]
 ---
 
 # Frontend Patterns Skill
@@ -63,6 +93,30 @@ const useAuthStore = create<AuthState>((set) => ({
 - [ ] Error boundaries set
 - [ ] Loading states handled
 - [ ] Code splitting implemented
-- [ ] Memoization applied
+
+## Unit Test Template
+
+```typescript
+describe('frontend-patterns skill', () => {
+  test('useUsers fetches and caches data', async () => {
+    const { result } = renderHook(() => useUsers(1));
+    await waitFor(() => expect(result.current.data).toBeDefined());
+  });
+
+  test('handles API errors gracefully', async () => {
+    server.use(rest.get('/api/users', (req, res, ctx) => res(ctx.status(500))));
+    const { result } = renderHook(() => useUsers(1));
+    await waitFor(() => expect(result.current.error).toBeDefined());
+  });
+});
+```
+
+## Troubleshooting
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Network error | API unreachable | Check connectivity |
+| Stale data | Cache not invalidated | Force refetch |
+| Hydration mismatch | SSR/client mismatch | Check rendering |
 
 See Agent 6: Frontend Integration for detailed guidance.

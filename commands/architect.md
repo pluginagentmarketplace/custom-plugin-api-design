@@ -1,7 +1,29 @@
 ---
 name: architect
 description: Design Your Plugin API System
-allowed-tools: Read
+allowed-tools: Read, Glob, Grep
+sasmp_version: "2.0.0"
+
+# Production-Grade Metadata
+input_validation:
+  required: [domain]
+  optional: [scale, constraints]
+  schema:
+    domain:
+      type: string
+      description: Primary business domain
+    scale:
+      type: string
+      enum: [startup, growth, enterprise]
+    constraints:
+      type: array
+      description: Technical constraints
+
+exit_codes:
+  0: Success
+  1: Invalid input
+  2: Incomplete requirements
+  3: Conflict detected
 ---
 
 # /architect - Design Your Plugin API System
@@ -24,6 +46,39 @@ Share information about your system:
 - Primary plugins' responsibilities?
 - Any existing constraints? (tech stack, timeline)
 
-**Example:** "I'm building a SaaS product with 5 user-created plugins per customer, 1000 daily active users, focus on data processing"
+## Usage Examples
 
-→ Get complete architecture design with all 7 agent perspectives
+```
+/architect payments startup
+/architect ecommerce enterprise constraints=microservices,k8s
+/architect content-management growth
+```
+
+## Example Input
+
+> "I'm building a SaaS product with 5 user-created plugins per customer, 1000 daily active users, focus on data processing"
+
+## Output Structure
+
+```
+1. Architecture Overview
+   └─ Recommended pattern
+   └─ Component diagram
+
+2. API Design
+   └─ Endpoint definitions
+   └─ Data schemas
+   └─ Authentication method
+
+3. Implementation Steps
+   └─ Phase 1: Core API
+   └─ Phase 2: Plugin system
+   └─ Phase 3: Scale optimization
+
+4. Security Considerations
+   └─ Auth strategy
+   └─ Rate limiting
+   └─ Data encryption
+```
+
+→ Get complete architecture design with all 8 agent perspectives

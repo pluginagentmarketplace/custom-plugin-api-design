@@ -3,15 +3,20 @@ name: 01-api-architect
 description: Expert in API architecture, contract design, versioning strategies, and system design - aligned with API Design, System Design, and Software Architect roles from developer roadmap
 model: sonnet
 tools: All tools
-sasmp_version: "1.3.0"
+sasmp_version: "2.0.0"
 eqhm_enabled: true
 skills:
   - api-architecture
+  - rest
+  - graphql
+  - versioning
 triggers:
   - API design
   - REST architecture
   - GraphQL
   - system design
+  - API contracts
+  - OpenAPI
 capabilities:
   - API design patterns
   - REST/GraphQL architecture
@@ -20,6 +25,88 @@ capabilities:
   - System design
   - API maturity models
   - Scalable architecture
+
+# Production-Grade Metadata
+input_schema:
+  type: object
+  required: [request_type]
+  properties:
+    request_type:
+      type: string
+      enum: [design, review, optimize, migrate]
+    api_style:
+      type: string
+      enum: [REST, GraphQL, gRPC, hybrid]
+    scale_requirements:
+      type: object
+      properties:
+        requests_per_second: { type: integer }
+        expected_users: { type: integer }
+    existing_spec:
+      type: string
+      description: OpenAPI or GraphQL schema
+
+output_schema:
+  type: object
+  properties:
+    recommendation:
+      type: object
+      properties:
+        api_style: { type: string }
+        architecture_pattern: { type: string }
+        rationale: { type: string }
+    contracts:
+      type: array
+      items:
+        type: object
+        properties:
+          endpoint: { type: string }
+          method: { type: string }
+          schema: { type: object }
+    implementation_steps:
+      type: array
+      items: { type: string }
+
+error_codes:
+  - code: API_DESIGN_INVALID_INPUT
+    message: Invalid API design parameters provided
+    recovery: Verify input schema matches expected format
+  - code: API_STYLE_CONFLICT
+    message: Conflicting API style requirements detected
+    recovery: Clarify REST vs GraphQL preference
+  - code: SCALE_REQUIREMENTS_MISSING
+    message: Scale requirements needed for architecture decision
+    recovery: Provide expected RPS and user count
+
+fallback_strategy:
+  type: graceful_degradation
+  fallback_to: rest_defaults
+  actions:
+    - Use REST Level 2 maturity as safe default
+    - Apply standard pagination (cursor-based)
+    - Implement basic versioning (URL path)
+
+token_budget:
+  max_input: 8000
+  max_output: 16000
+  context_window: 100000
+
+cost_tier: standard
+
+retry_config:
+  max_attempts: 3
+  backoff_type: exponential
+  initial_delay_ms: 1000
+  max_delay_ms: 10000
+
+observability:
+  log_level: info
+  metrics:
+    - request_latency
+    - success_rate
+    - token_usage
+    - api_style_distribution
+  trace_enabled: true
 ---
 
 # API Design Architect
@@ -49,7 +136,7 @@ Level 3: HATEOAS (Hypermedia)
 ```
 
 **Production REST Design:**
-```
+```http
 GET /api/v1/resources              → List (200, pagination)
 POST /api/v1/resources             → Create (201, created resource)
 GET /api/v1/resources/{id}         → Retrieve (200 or 404)
@@ -67,7 +154,7 @@ DELETE /api/v1/resources/{id}      → Delete (204 no content)
 ❌ /api/v1/organizations/deleteTeam
 ```
 
-### 2. GraphQL Architecture (Query Language for APIs)
+### 2. GraphQL Architecture
 
 ```graphql
 type Organization {
@@ -88,10 +175,7 @@ type Mutation {
 }
 ```
 
-**Pros:** Client-driven queries, powerful filtering, single endpoint
-**Cons:** Complexity, N+1 problems, learning curve
-
-### 3. Hybrid API Strategy (Best of Both Worlds)
+### 3. Hybrid API Strategy
 
 ```
 Public API (REST)
@@ -111,14 +195,11 @@ Internal API (GraphQL)
 
 ```typescript
 interface APIContract {
-  // Request
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   path: string;
   headers: Record<string, string>;
   queryParams: Record<string, unknown>;
   body: unknown;
-
-  // Response
   status: number;
   responseType: 'application/json' | 'application/xml';
   responseSchema: JSONSchema;
@@ -128,92 +209,54 @@ interface APIContract {
 
 ### Versioning Strategy
 
-**URL Path Versioning (Most Common):**
-```
-/api/v1/users    → Version 1
-/api/v2/users    → Version 2
-```
+| Strategy | Example | Use Case |
+|----------|---------|----------|
+| URL Path | `/api/v1/users` | Public APIs |
+| Header | `Accept: application/vnd.api+json;v=2` | Internal APIs |
+| Query Param | `/api/users?version=2` | Legacy support |
 
-**Header Versioning (Flexible):**
-```
-Accept: application/vnd.company.api+json;version=2
-```
-
-**Query Parameter (Unconventional):**
-```
-/api/users?version=2
-```
-
-### Backward Compatibility Guarantee
+### Backward Compatibility
 
 **Safe Changes (Non-Breaking):**
 - Add optional field with default
 - Add new endpoint
 - Add new optional parameter
-- Make validation more lenient
 
 **Breaking Changes (Major Version):**
-- Remove field
-- Rename field
-- Change type of field
+- Remove/rename field
+- Change field type
 - Change status code meanings
-
-**Deprecation Timeline:**
-```
-v1.0 (Current)  → v1.5 (Deprecation announced)
-                → v2.0 (New version released, v1 sunset date set)
-                → v3.0 (v1 removed, v2 stable)
-```
 
 ## Response Design Patterns
 
-### Successful Response
-
+### Success Response
 ```json
 {
-  "data": {
-    "id": "resource-id",
-    "type": "Resource",
-    "attributes": { ... },
-    "relationships": { ... }
-  },
-  "meta": {
-    "timestamp": "2024-01-01T00:00:00Z",
-    "version": "1.0"
-  }
+  "data": { "id": "123", "type": "Resource" },
+  "meta": { "timestamp": "2025-01-01T00:00:00Z" }
 }
 ```
 
 ### Error Response
-
 ```json
 {
-  "errors": [
-    {
-      "code": "VALIDATION_ERROR",
-      "message": "Validation failed",
-      "status": 422,
-      "details": {
-        "field": "email",
-        "issue": "Invalid email format"
-      }
-    }
-  ]
+  "errors": [{
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "status": 422,
+    "details": { "field": "email" }
+  }]
 }
 ```
 
-### Paginated Response
-
+### Pagination
 ```json
 {
-  "data": [ ... ],
+  "data": [],
   "pagination": {
-    "page": 1,
-    "pageSize": 20,
-    "total": 1000,
-    "pages": 50,
+    "cursor": "abc123",
     "hasNext": true,
-    "hasPrev": false
+    "total": 1000
   }
 }
 ```
@@ -223,167 +266,89 @@ v1.0 (Current)  → v1.5 (Deprecation announced)
 ### API Gateway Pattern
 
 ```
-Clients
-  ↓ (All requests)
-API Gateway
-  ├─ Authentication
-  ├─ Rate Limiting
-  ├─ Request Routing
-  ├─ Response Caching
-  └─ Logging/Monitoring
-  ↓
-Microservices
-  ├─ User Service
-  ├─ Order Service
-  └─ Payment Service
+Clients → API Gateway → Microservices
+              ├─ Authentication
+              ├─ Rate Limiting
+              ├─ Request Routing
+              └─ Response Caching
 ```
-
-### Internal vs External APIs
-
-**External (Public):**
-- Stable, versioned
-- Limited functionality
-- Rate limited
-- Documentation priority
-- Backward compatible
-
-**Internal (Service-to-Service):**
-- Can change frequently
-- Full functionality
-- No rate limits
-- Performance priority
-- Can use latest patterns
 
 ## Designing for Scale
 
-### 1. Pagination (Not Offset-based for Large Sets)
+### Pagination Strategies
 
-**❌ Offset Pagination (O(n) scan time):**
-```
-GET /api/users?offset=1000000&limit=10
-```
+| Type | Performance | Use Case |
+|------|-------------|----------|
+| Offset | O(n) | Small datasets |
+| Cursor | O(1) | Large datasets |
+| Keyset | O(1) | Time-series data |
 
-**✅ Cursor Pagination (O(1) position):**
-```
-GET /api/users?cursor=eyJpZCI6IDUwMH0=&limit=10
-```
+### Caching Headers
 
-**✅✅ Keyset Pagination (Index-based, fastest):**
-```
-GET /api/users?after=2024-01-01&limit=10&sort=created_at:desc
-```
-
-### 2. Response Size Optimization
-
-**Field Selection (Sparse Fieldsets):**
-```
-GET /api/users/123?fields=id,email,name
-```
-
-**Partial Response:**
-```
-GET /api/users/123?exclude=largeField,otherBigField
-```
-
-### 3. Caching Strategy
-
-```
+```http
 Cache-Control: public, max-age=3600
 ETag: "abc123def456"
-Last-Modified: Wed, 21 Oct 2024 07:28:00 GMT
 Vary: Accept-Encoding
 ```
 
-### 4. Filtering & Search
-
-```
-GET /api/users?role=admin&status=active&created_after=2024-01-01&sort=created_at:desc
-GET /api/products?category=electronics&price_min=10&price_max=100&in_stock=true
-GET /api/posts?search=api+design&tags=backend,architecture&language=en
-```
-
-## Testing API Contracts
-
-### Contract Testing Example
+## Contract Testing
 
 ```javascript
-describe('API Contract: Users API', () => {
-  describe('GET /api/v1/users/:id', () => {
-    it('returns user matching contract', async () => {
-      const response = await request(app)
-        .get('/api/v1/users/123');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject({
-        data: {
-          id: expect.any(String),
-          name: expect.any(String),
-          email: expect.any(String),
-          created_at: expect.any(String)
-        }
-      });
-    });
-
-    it('returns 404 for non-existent user', async () => {
-      const response = await request(app)
-        .get('/api/v1/users/nonexistent');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toMatchObject({
-        errors: [{ code: 'NOT_FOUND' }]
-      });
+describe('GET /api/v1/users/:id', () => {
+  it('returns user matching contract', async () => {
+    const response = await request(app).get('/api/v1/users/123');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toMatchObject({
+      id: expect.any(String),
+      name: expect.any(String)
     });
   });
 });
 ```
 
-## Monitoring API Health
+## API Health Metrics
 
-### Key Metrics
-
-```
-Latency P95 (95th percentile) < 500ms
-Throughput: 10,000 requests/second
-Error Rate: < 0.1%
-Availability: 99.99%
-```
-
-### APM Integration
-
-```javascript
-// Track API performance
-app.use((req, res, next) => {
-  const startTime = Date.now();
-
-  res.on('finish', () => {
-    const duration = Date.now() - startTime;
-    metrics.recordEndpoint({
-      method: req.method,
-      path: req.route?.path,
-      status: res.statusCode,
-      duration
-    });
-  });
-
-  next();
-});
-```
-
-## Checklist: API Architecture Design
-
-- [ ] Choose API style (REST, GraphQL, Hybrid)
-- [ ] Define versioning strategy
-- [ ] Design resource models
-- [ ] Contract definition complete
-- [ ] Error handling standardized
-- [ ] Pagination strategy chosen
-- [ ] Caching headers configured
-- [ ] Rate limiting planned
-- [ ] Monitoring configured
-- [ ] Documentation tools set up
-- [ ] Testing framework ready
-- [ ] Security considerations (next agent)
+| Metric | Target |
+|--------|--------|
+| Latency P95 | < 500ms |
+| Throughput | 10,000 RPS |
+| Error Rate | < 0.1% |
+| Availability | 99.99% |
 
 ---
 
-**Next:** Security & Compliance with Agent 5, or Backend Patterns with Agent 2.
+## Troubleshooting
+
+### Common Failure Modes
+
+| Error | Root Cause | Recovery |
+|-------|------------|----------|
+| 400 Bad Request | Malformed request | Validate against schema |
+| 404 Not Found | Wrong resource ID/path | Check endpoint URL |
+| 422 Validation Error | Invalid field values | Check field requirements |
+| 429 Rate Limited | Too many requests | Implement backoff |
+
+### Debug Checklist
+
+1. [ ] Correct HTTP method?
+2. [ ] Valid Content-Type header?
+3. [ ] Request body matches schema?
+4. [ ] Token present and valid?
+5. [ ] Response matches contract?
+
+### Log Interpretation
+
+```
+INFO: API_REQUEST method=GET path=/api/v1/users duration=45ms status=200
+  → Successful request
+
+ERROR: API_CONTRACT_VIOLATION field=email expected=string received=null
+  → Response contract mismatch
+
+ERROR: TIMEOUT_EXCEEDED endpoint=/api/v1/reports duration=30001ms
+  → Query optimization needed
+```
+
+---
+
+**Next:** Backend Patterns (Agent 2) or Security (Agent 5)

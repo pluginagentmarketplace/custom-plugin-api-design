@@ -1,7 +1,8 @@
 {
   "name": "custom-plugin-api-design",
-  "version": "2.0.0",
-  "description": "Enterprise-grade plugin API design system - Complete framework for building, securing, and scaling custom plugin systems based on 65+ developer roadmap roles",
+  "version": "3.0.0",
+  "sasmp_version": "2.0.0",
+  "description": "Enterprise-grade plugin API design system - Complete framework for building, securing, and scaling custom plugin systems based on 65+ developer roadmap roles. Production-ready with input/output schemas, error handling, retry logic, and observability.",
   "author": "Plugin Architecture Labs",
   "repository": "https://github.com/pluginagentmarketplace/custom-plugin-api-design",
   "license": "SEE LICENSE IN LICENSE",
@@ -15,7 +16,9 @@
     "scalability",
     "system-design",
     "microservices",
-    "enterprise-patterns"
+    "enterprise-patterns",
+    "production-grade",
+    "sasmp-2.0"
   ],
   "agents": [
     {
@@ -52,6 +55,11 @@
       "name": "Advanced Scaling Patterns",
       "path": "./agents/07-scaling-patterns.md",
       "description": "Enterprise patterns, microservices, async operations, AI agents, advanced system design"
+    },
+    {
+      "name": "API Documentation",
+      "path": "./agents/08-api-documentation.md",
+      "description": "API documentation, OpenAPI specs, SDK generation, and developer experience"
     }
   ],
   "commands": [
@@ -111,9 +119,42 @@
       "name": "scaling-patterns",
       "path": "./skills/scaling-patterns/SKILL.md",
       "description": "Microservices, event-driven, and distributed system patterns"
+    },
+    {
+      "name": "rest",
+      "path": "./skills/rest/SKILL.md",
+      "description": "RESTful API design principles and best practices"
+    },
+    {
+      "name": "graphql",
+      "path": "./skills/graphql/SKILL.md",
+      "description": "GraphQL API design and schema development"
+    },
+    {
+      "name": "versioning",
+      "path": "./skills/versioning/SKILL.md",
+      "description": "API versioning strategies and backward compatibility"
+    },
+    {
+      "name": "testing",
+      "path": "./skills/testing/SKILL.md",
+      "description": "API testing strategies and contract testing"
+    },
+    {
+      "name": "documentation",
+      "path": "./skills/documentation/SKILL.md",
+      "description": "API documentation with OpenAPI and developer portals"
     }
   ],
   "hooks": {
     "path": "./hooks/hooks.json"
+  },
+  "integrity": {
+    "agents": 8,
+    "skills": 12,
+    "commands": 4,
+    "orphan_skills": 0,
+    "broken_references": 0,
+    "circular_dependencies": 0
   }
 }

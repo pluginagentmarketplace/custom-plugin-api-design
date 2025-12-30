@@ -3,7 +3,7 @@ name: 04-devops-infrastructure
 description: Infrastructure, deployment, and operations - Docker, Kubernetes, AWS, Terraform, CI/CD aligned with DevOps and Infrastructure roles
 model: sonnet
 tools: All tools
-sasmp_version: "1.3.0"
+sasmp_version: "2.0.0"
 eqhm_enabled: true
 skills:
   - devops-patterns
@@ -13,6 +13,8 @@ triggers:
   - Terraform
   - CI/CD
   - AWS infrastructure
+  - deployment
+  - containerization
 capabilities:
   - Containerization
   - Kubernetes orchestration
@@ -21,6 +23,79 @@ capabilities:
   - Infrastructure as Code
   - Monitoring
   - Scaling strategies
+
+# Production-Grade Metadata
+input_schema:
+  type: object
+  required: [infrastructure_type]
+  properties:
+    infrastructure_type:
+      type: string
+      enum: [docker, kubernetes, terraform, cicd, monitoring]
+    cloud_provider:
+      type: string
+      enum: [aws, gcp, azure, self-hosted]
+    operation:
+      type: string
+      enum: [setup, optimize, debug, migrate]
+    existing_config:
+      type: string
+      description: Current infrastructure configuration
+
+output_schema:
+  type: object
+  properties:
+    configuration:
+      type: object
+      properties:
+        files: { type: array }
+        commands: { type: array }
+    deployment_steps:
+      type: array
+      items: { type: string }
+    rollback_procedure:
+      type: string
+
+error_codes:
+  - code: CONTAINER_BUILD_FAILED
+    message: Docker build failed
+    recovery: Check Dockerfile syntax and base image availability
+  - code: K8S_DEPLOYMENT_FAILED
+    message: Kubernetes deployment failed
+    recovery: Check pod logs and resource limits
+  - code: TERRAFORM_PLAN_FAILED
+    message: Terraform plan failed
+    recovery: Validate HCL syntax and provider credentials
+
+fallback_strategy:
+  type: graceful_degradation
+  fallback_to: rollback
+  actions:
+    - Automatic rollback to previous version
+    - Scale down gracefully
+    - Preserve logs for debugging
+
+token_budget:
+  max_input: 8000
+  max_output: 16000
+  context_window: 100000
+
+cost_tier: standard
+
+retry_config:
+  max_attempts: 3
+  backoff_type: exponential
+  initial_delay_ms: 1000
+  max_delay_ms: 10000
+
+observability:
+  log_level: info
+  metrics:
+    - deployment_duration
+    - rollback_rate
+    - container_health
+    - resource_utilization
+  trace_enabled: true
 ---
 
 # DevOps & Infrastructure at Scale
@@ -38,19 +113,24 @@ RUN npm ci --only=production
 
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
+
+# Security: non-root user
+RUN addgroup -g 1001 appgroup && adduser -u 1001 -G appgroup -s /bin/sh -D appuser
+USER appuser
+
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup . .
 
 ENV NODE_ENV=production
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
 CMD ["node", "dist/index.js"]
 ```
 
-### Docker Compose for Local Development
+### Docker Compose
 
 ```yaml
 version: '3.8'
@@ -64,11 +144,15 @@ services:
       DATABASE_URL: postgres://user:pass@db:5432/myapp
       REDIS_URL: redis://cache:6379
     depends_on:
-      - db
-      - cache
-    volumes:
-      - .:/app
-      - /app/node_modules
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
 
   db:
     image: postgres:16-alpine
@@ -81,11 +165,11 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user"]
       interval: 10s
+      timeout: 5s
+      retries: 5
 
   cache:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -96,7 +180,7 @@ volumes:
 
 ## Kubernetes Deployment
 
-### Service Deployment
+### Deployment with Best Practices
 
 ```yaml
 apiVersion: apps/v1
@@ -105,8 +189,14 @@ metadata:
   name: api-service
   labels:
     app: api
+    version: v1
 spec:
   replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: api
@@ -115,9 +205,13 @@ spec:
       labels:
         app: api
     spec:
+      serviceAccountName: api-service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
       containers:
       - name: api
-        image: myregistry.azurecr.io/api:latest
+        image: myregistry/api:v1.0.0
         ports:
         - containerPort: 3000
         env:
@@ -139,6 +233,7 @@ spec:
             port: 3000
           initialDelaySeconds: 30
           periodSeconds: 10
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /ready
@@ -157,7 +252,7 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 3000
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -169,230 +264,7 @@ spec:
     kind: Deployment
     name: api-service
   minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-```
-
-## Infrastructure as Code (Terraform)
-
-### AWS Infrastructure
-
-```hcl
-# Provider
-provider "aws" {
-  region = "us-east-1"
-}
-
-# VPC
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-}
-
-# RDS Database
-resource "aws_db_instance" "main" {
-  identifier     = "myapp-db"
-  engine         = "postgres"
-  engine_version = "15.3"
-  instance_class = "db.t3.micro"
-  allocated_storage = 20
-
-  db_name  = "myapp"
-  username = "dbadmin"
-  password = random_password.db_password.result
-
-  skip_final_snapshot       = false
-  final_snapshot_identifier = "myapp-db-final-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
-
-  backup_retention_period = 30
-  multi_az               = true
-}
-
-# ElastiCache Redis
-resource "aws_elasticache_cluster" "redis" {
-  cluster_id           = "myapp-cache"
-  engine              = "redis"
-  node_type           = "cache.t3.micro"
-  num_cache_nodes     = 1
-  parameter_group_name = "default.redis7"
-  port                = 6379
-}
-
-# ECS Cluster
-resource "aws_ecs_cluster" "main" {
-  name = "myapp-cluster"
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-  }
-}
-
-# ALB
-resource "aws_lb" "main" {
-  name               = "myapp-alb"
-  internal           = false
-  load_balancer_type = "application"
-  subnets            = aws_subnet.public[*].id
-
-  enable_deletion_protection = true
-}
-```
-
-## CI/CD Pipeline (GitHub Actions)
-
-```yaml
-name: Deploy to Production
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-        env:
-          DATABASE_URL: postgresql://user:pass@localhost:5432/test
-
-      - name: Build
-        run: npm run build
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build Docker image
-        run: |
-          docker build -t myregistry.azurecr.io/api:${{ github.sha }} .
-          docker tag myregistry.azurecr.io/api:${{ github.sha }} myregistry.azurecr.io/api:latest
-
-      - name: Push to registry
-        run: |
-          echo ${{ secrets.REGISTRY_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin myregistry.azurecr.io
-          docker push myregistry.azurecr.io/api:${{ github.sha }}
-          docker push myregistry.azurecr.io/api:latest
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl set image deployment/api-service api=myregistry.azurecr.io/api:${{ github.sha }} -n production
-          kubectl rollout status deployment/api-service -n production --timeout=5m
-```
-
-## Monitoring & Observability
-
-### Prometheus Metrics
-
-```javascript
-const prometheus = require('prom-client');
-
-// Create metrics
-const httpRequestDuration = new prometheus.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.1, 0.5, 1, 2, 5]
-});
-
-const httpRequestTotal = new prometheus.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
-});
-
-// Middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-
-  res.on('finish', () => {
-    const duration = (Date.now() - start) / 1000;
-    httpRequestDuration
-      .labels(req.method, req.route?.path || 'unknown', res.statusCode)
-      .observe(duration);
-
-    httpRequestTotal
-      .labels(req.method, req.route?.path || 'unknown', res.statusCode)
-      .inc();
-  });
-
-  next();
-});
-
-// Expose metrics
-app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', prometheus.register.contentType);
-  res.end(await prometheus.register.metrics());
-});
-```
-
-### ELK Stack (Elasticsearch, Logstash, Kibana)
-
-```yaml
-version: '3.8'
-
-services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.0.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.0.0
-    ports:
-      - "5601:5601"
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.0.0
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-    ports:
-      - "5000:5000"
-```
-
-## Scaling Strategies
-
-### Horizontal Scaling (Multiple Instances)
-
-```yaml
-# Kubernetes HPA
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: api-scaler
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: api
-  minReplicas: 3
-  maxReplicas: 100
+  maxReplicas: 20
   metrics:
   - type: Resource
     resource:
@@ -408,18 +280,183 @@ spec:
         averageUtilization: 80
 ```
 
-### Vertical Scaling (Bigger Instances)
+## Infrastructure as Code (Terraform)
+
+### AWS Infrastructure
 
 ```hcl
-# Terraform - Increase instance size
-resource "aws_instance" "api" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t3.large"  # Increased from t3.micro
-
-  tags = {
-    Name = "api-server"
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = { source = "hashicorp/aws", version = "~> 5.0" }
   }
 }
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  tags = { Name = "${var.project}-vpc" }
+}
+
+# RDS Database
+resource "aws_db_instance" "main" {
+  identifier           = "${var.project}-db"
+  engine               = "postgres"
+  engine_version       = "15"
+  instance_class       = "db.t3.medium"
+  allocated_storage    = 20
+
+  db_name              = var.db_name
+  username             = var.db_username
+  password             = var.db_password
+
+  multi_az             = true
+  backup_retention_period = 30
+  deletion_protection  = true
+
+  skip_final_snapshot  = false
+  final_snapshot_identifier = "${var.project}-db-final"
+}
+
+# ElastiCache Redis
+resource "aws_elasticache_cluster" "redis" {
+  cluster_id           = "${var.project}-cache"
+  engine               = "redis"
+  node_type            = "cache.t3.micro"
+  num_cache_nodes      = 1
+  port                 = 6379
+}
+
+# ECS Cluster
+resource "aws_ecs_cluster" "main" {
+  name = "${var.project}-cluster"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+```
+
+## CI/CD Pipeline (GitHub Actions)
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl set image deployment/api-service \
+            api=${{ needs.build-and-push.outputs.image-tag }} \
+            -n production
+          kubectl rollout status deployment/api-service \
+            -n production --timeout=5m
+```
+
+## Monitoring & Observability
+
+### Prometheus Metrics
+
+```javascript
+const prometheus = require('prom-client');
+
+const httpRequestDuration = new prometheus.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.1, 0.5, 1, 2, 5]
+});
+
+const httpRequestTotal = new prometheus.Counter({
+  name: 'http_requests_total',
+  help: 'Total HTTP requests',
+  labelNames: ['method', 'route', 'status_code']
+});
+
+// Middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = (Date.now() - start) / 1000;
+    httpRequestDuration
+      .labels(req.method, req.route?.path || 'unknown', res.statusCode)
+      .observe(duration);
+    httpRequestTotal
+      .labels(req.method, req.route?.path || 'unknown', res.statusCode)
+      .inc();
+  });
+  next();
+});
 ```
 
 ## DevOps Checklist
@@ -428,12 +465,61 @@ resource "aws_instance" "api" {
 - [ ] Kubernetes manifests validated
 - [ ] Infrastructure as Code reviewed
 - [ ] CI/CD pipeline automated
-- [ ] Database backups configured
-- [ ] Monitoring and logging in place
+- [ ] Secrets management configured
+- [ ] Monitoring and alerting in place
 - [ ] Auto-scaling policies set
-- [ ] Disaster recovery plan
-- [ ] Security scanning enabled
-- [ ] Documentation complete
+- [ ] Disaster recovery plan tested
+- [ ] Rollback procedure documented
+
+---
+
+## Troubleshooting
+
+### Common Failure Modes
+
+| Error | Root Cause | Recovery |
+|-------|------------|----------|
+| ImagePullBackOff | Registry auth or image missing | Check credentials, verify image exists |
+| CrashLoopBackOff | App crashes on start | Check container logs |
+| OOMKilled | Memory limit exceeded | Increase limits or fix leak |
+| Pending pod | Insufficient resources | Scale cluster or reduce requests |
+
+### Debug Checklist
+
+1. [ ] Check pod status: `kubectl get pods`
+2. [ ] View pod logs: `kubectl logs <pod>`
+3. [ ] Describe pod: `kubectl describe pod <pod>`
+4. [ ] Check events: `kubectl get events`
+5. [ ] Exec into pod: `kubectl exec -it <pod> -- sh`
+
+### Log Interpretation
+
+```
+INFO: DEPLOYMENT_STARTED version=v1.2.0 replicas=3
+  → Deployment initiated
+
+WARN: POD_RESTART count=3 reason=OOMKilled
+  → Memory issues, increase limits
+
+ERROR: HEALTHCHECK_FAILED endpoint=/health status=503
+  → Application unhealthy, check dependencies
+
+ERROR: ROLLBACK_TRIGGERED reason=deployment_timeout
+  → Automatic rollback executed
+```
+
+### Deployment Rollback
+
+```bash
+# Check rollout history
+kubectl rollout history deployment/api-service
+
+# Rollback to previous
+kubectl rollout undo deployment/api-service
+
+# Rollback to specific revision
+kubectl rollout undo deployment/api-service --to-revision=2
+```
 
 ---
 
