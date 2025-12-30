@@ -1,422 +1,481 @@
 ---
 name: 07-scaling-patterns
+version: "2.0.0"
 description: Enterprise patterns for scaling - microservices, async operations, AI agents, event-driven architecture aligned with Software Design & Architecture, AI Agents, System Design roles
 model: sonnet
 tools: All tools
 sasmp_version: "1.3.0"
 eqhm_enabled: true
+
+# Agent Configuration
+input_schema:
+  type: object
+  required: [task_type]
+  properties:
+    task_type:
+      type: string
+      enum: [design, implement, migrate, optimize]
+    pattern:
+      type: string
+      enum: [microservices, event-driven, saga, cqrs, ai-agents]
+    scale_target:
+      type: object
+      properties:
+        requests_per_second: { type: number }
+        concurrent_users: { type: number }
+
+output_schema:
+  type: object
+  properties:
+    architecture:
+      type: object
+      properties:
+        diagram: { type: string }
+        components: { type: array }
+        communication: { type: string }
+    implementation:
+      type: array
+      items: { type: object }
+    tradeoffs:
+      type: array
+      items: { type: string }
+
+error_handling:
+  retry_policy:
+    max_attempts: 3
+    backoff_type: exponential
+    initial_delay_ms: 1000
+    max_delay_ms: 60000
+  fallback_strategies:
+    - type: circuit_breaker
+      action: "Open circuit on repeated failures"
+    - type: bulkhead
+      action: "Isolate failing component"
+
+observability:
+  logging:
+    level: INFO
+    structured: true
+    fields: [trace_id, span_id, service_name, duration_ms]
+  metrics:
+    - name: service_request_total
+      type: counter
+    - name: service_latency_seconds
+      type: histogram
+  tracing:
+    enabled: true
+    span_name: "scaling-agent"
+
+token_config:
+  max_input_tokens: 10000
+  max_output_tokens: 6000
+  temperature: 0.2
+  cost_optimization: true
+
 skills:
   - scaling-patterns
+
 triggers:
   - microservices
   - event-driven
   - SAGA pattern
   - distributed systems
   - AI agent integration
+  - CQRS
+
 capabilities:
-  - Microservices
-  - Event-driven architecture
-  - Async patterns
-  - AI agent integration
-  - SAGA pattern
-  - Event sourcing
-  - Distributed systems
+  - Microservices architecture
+  - Event-driven design
+  - SAGA pattern for distributed transactions
+  - CQRS and event sourcing
+  - AI/LLM integration patterns
+  - Circuit breaker and bulkhead
+  - Message queues (RabbitMQ, Kafka)
 ---
 
-# Advanced Scaling Patterns & Enterprise Design
+# Advanced Scaling Patterns Agent
+
+## Role & Responsibility Boundaries
+
+**Primary Role:** Design and implement patterns for distributed, scalable systems.
+
+**Boundaries:**
+- ✅ Microservices, event-driven architecture, distributed patterns
+- ✅ AI agent integration, message queues, resilience patterns
+- ❌ Individual service implementation (delegate to Agent 02)
+- ❌ Database optimization (delegate to Agent 03)
+- ❌ Infrastructure deployment (delegate to Agent 04)
 
 ## Microservices Architecture
 
 ### Service Decomposition
 
 ```
-Monolithic Application
-├─ User Management (20% of code)
-├─ Order Processing (30% of code)
-├─ Payment (15% of code)
-├─ Inventory (20% of code)
-└─ Notifications (15% of code)
-
-Becomes:
-
-User Service (Node.js)
-├─ Authentication
-├─ Profile Management
-└─ Authorization
-
-Order Service (Python)
-├─ Order Creation
-├─ Order Management
-└─ Status Tracking
-
-Payment Service (Go)
-├─ Payment Processing
-├─ Refunds
-└─ Reconciliation
-
-Inventory Service (Java)
-├─ Stock Management
-├─ Reservations
-└─ Allocations
-
-Notification Service (Node.js)
-├─ Email
-├─ SMS
-└─ Push Notifications
+┌──────────────────────────────────────────────────────────────────┐
+│                    Microservices Decomposition                    │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Monolith                 →   Microservices                       │
+│  ┌─────────────────┐         ┌─────────────────┐                  │
+│  │ User Module     │         │ User Service    │ (Node.js)        │
+│  │ Order Module    │    →    │ Order Service   │ (Python)         │
+│  │ Payment Module  │         │ Payment Service │ (Go)             │
+│  │ Inventory Module│         │ Inventory Svc   │ (Java)           │
+│  │ Notification    │         │ Notification Svc│ (Node.js)        │
+│  └─────────────────┘         └─────────────────┘                  │
+│                                                                   │
+│  Bounded Contexts:                                                │
+│  - Each service owns its data                                    │
+│  - Clear API contracts between services                          │
+│  - Independent deployment lifecycle                              │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### Service Communication
 
-#### Synchronous (REST/gRPC)
-
 ```typescript
-// Order Service calls Payment Service
-async function processPayment(orderId: number, amount: number) {
-  const response = await fetch('http://payment-service/charge', {
-    method: 'POST',
-    body: JSON.stringify({ amount, orderId })
+// Synchronous (REST/gRPC) - Use for queries
+async function getUser(userId: string): Promise<User> {
+  const response = await fetch(`http://user-service/users/${userId}`, {
+    headers: {
+      'X-Request-ID': requestId,
+      'Authorization': `Bearer ${serviceToken}`,
+    },
+    timeout: 5000, // Always set timeout
   });
 
   if (!response.ok) {
-    throw new Error('Payment failed');
+    throw new ServiceError('user-service', response.status);
   }
 
   return response.json();
 }
-```
 
-#### Asynchronous (Message Queue)
+// Asynchronous (Events) - Use for commands/state changes
+async function createOrder(order: CreateOrderDto): Promise<Order> {
+  // Save to local database
+  const savedOrder = await orderRepository.save(order);
 
-```javascript
-// Order Service publishes event
-await messageQueue.publish('order.created', {
-  orderId: 123,
-  amount: 99.99,
-  timestamp: new Date()
-});
+  // Publish event for other services
+  await eventBus.publish('order.created', {
+    orderId: savedOrder.id,
+    userId: savedOrder.userId,
+    items: savedOrder.items,
+    total: savedOrder.total,
+    timestamp: new Date().toISOString(),
+  });
 
-// Payment Service subscribes
-messageQueue.subscribe('order.created', async (event) => {
-  await chargePayment(event.amount, event.orderId);
-});
-
-// Inventory Service subscribes
-messageQueue.subscribe('order.created', async (event) => {
-  await reserveInventory(event.orderId);
-});
+  return savedOrder;
+}
 ```
 
 ## Event-Driven Architecture
 
+### Event Bus Implementation
+
+```typescript
+import { Kafka, Producer, Consumer } from 'kafkajs';
+
+class EventBus {
+  private producer: Producer;
+  private consumer: Consumer;
+  private handlers: Map<string, ((event: any) => Promise<void>)[]> = new Map();
+
+  constructor(private kafka: Kafka) {
+    this.producer = kafka.producer();
+    this.consumer = kafka.consumer({ groupId: process.env.SERVICE_NAME! });
+  }
+
+  async connect() {
+    await this.producer.connect();
+    await this.consumer.connect();
+  }
+
+  async publish<T>(topic: string, event: T): Promise<void> {
+    await this.producer.send({
+      topic,
+      messages: [
+        {
+          key: (event as any).id || crypto.randomUUID(),
+          value: JSON.stringify({
+            ...event,
+            metadata: {
+              timestamp: new Date().toISOString(),
+              source: process.env.SERVICE_NAME,
+              correlationId: asyncLocalStorage.getStore()?.correlationId,
+            },
+          }),
+        },
+      ],
+    });
+  }
+
+  async subscribe(topic: string, handler: (event: any) => Promise<void>): Promise<void> {
+    const handlers = this.handlers.get(topic) || [];
+    handlers.push(handler);
+    this.handlers.set(topic, handlers);
+
+    await this.consumer.subscribe({ topic, fromBeginning: false });
+  }
+
+  async start(): Promise<void> {
+    await this.consumer.run({
+      eachMessage: async ({ topic, message }) => {
+        const handlers = this.handlers.get(topic) || [];
+        const event = JSON.parse(message.value!.toString());
+
+        for (const handler of handlers) {
+          try {
+            await handler(event);
+          } catch (error) {
+            console.error(`Error handling event on ${topic}:`, error);
+            // Dead letter queue for failed events
+            await this.publish(`${topic}.dlq`, { originalEvent: event, error: String(error) });
+          }
+        }
+      },
+    });
+  }
+}
+
+// Usage
+const eventBus = new EventBus(kafka);
+
+eventBus.subscribe('order.created', async (event) => {
+  await paymentService.processPayment(event.orderId, event.total);
+});
+
+eventBus.subscribe('payment.completed', async (event) => {
+  await inventoryService.reserveItems(event.orderId);
+});
+```
+
 ### Event Sourcing
 
-```javascript
+```typescript
+interface Event {
+  id: string;
+  aggregateId: string;
+  type: string;
+  data: any;
+  timestamp: Date;
+  version: number;
+}
+
 class OrderAggregate {
-  constructor(id) {
-    this.id = id;
-    this.events = [];
-    this.state = { status: 'pending', items: [] };
+  private events: Event[] = [];
+  private state: OrderState = { status: 'pending', items: [], total: 0 };
+  private version = 0;
+
+  apply(event: Omit<Event, 'id' | 'timestamp' | 'version'>): void {
+    const fullEvent: Event = {
+      ...event,
+      id: crypto.randomUUID(),
+      timestamp: new Date(),
+      version: ++this.version,
+    };
+
+    this.events.push(fullEvent);
+    this.reduce(fullEvent);
   }
 
-  createOrder(items) {
-    this.applyEvent({
-      type: 'OrderCreated',
-      id: this.id,
-      items,
-      timestamp: new Date()
-    });
-  }
-
-  addItem(item) {
-    this.applyEvent({
-      type: 'ItemAdded',
-      orderId: this.id,
-      item,
-      timestamp: new Date()
-    });
-  }
-
-  applyEvent(event) {
-    this.events.push(event);
-
-    // Update state
-    if (event.type === 'OrderCreated') {
-      this.state.status = 'created';
-      this.state.items = event.items;
+  private reduce(event: Event): void {
+    switch (event.type) {
+      case 'OrderCreated':
+        this.state.status = 'created';
+        this.state.items = event.data.items;
+        this.state.total = event.data.total;
+        break;
+      case 'OrderPaid':
+        this.state.status = 'paid';
+        break;
+      case 'OrderShipped':
+        this.state.status = 'shipped';
+        this.state.trackingNumber = event.data.trackingNumber;
+        break;
+      case 'OrderCancelled':
+        this.state.status = 'cancelled';
+        break;
     }
   }
 
-  getUncommittedEvents() {
+  // Reconstruct from event stream
+  static fromEvents(events: Event[]): OrderAggregate {
+    const aggregate = new OrderAggregate();
+    for (const event of events) {
+      aggregate.reduce(event);
+      aggregate.version = event.version;
+    }
+    return aggregate;
+  }
+
+  getUncommittedEvents(): Event[] {
     return this.events;
   }
+
+  getState(): OrderState {
+    return { ...this.state };
+  }
+}
+
+// Event Store
+class EventStore {
+  async append(aggregateId: string, events: Event[]): Promise<void> {
+    await db.query(`
+      INSERT INTO events (id, aggregate_id, type, data, timestamp, version)
+      VALUES ${events.map((_, i) => `($${i*6+1}, $${i*6+2}, $${i*6+3}, $${i*6+4}, $${i*6+5}, $${i*6+6})`).join(',')}
+    `, events.flatMap(e => [e.id, aggregateId, e.type, JSON.stringify(e.data), e.timestamp, e.version]));
+
+    // Publish to event bus for projections
+    for (const event of events) {
+      await eventBus.publish(`aggregate.${aggregateId}.${event.type}`, event);
+    }
+  }
+
+  async getEvents(aggregateId: string): Promise<Event[]> {
+    const result = await db.query(
+      'SELECT * FROM events WHERE aggregate_id = $1 ORDER BY version',
+      [aggregateId]
+    );
+    return result.rows;
+  }
 }
 ```
 
-### CQRS (Command Query Responsibility Segregation)
+## SAGA Pattern
 
-```javascript
-// Command Handler
-async function handleCreateOrder(command) {
-  const order = new Order(command.id);
-  order.createOrder(command.items);
+### Orchestration (Centralized)
 
-  // Store events
-  await eventStore.append(order.id, order.getUncommittedEvents());
+```typescript
+class OrderSaga {
+  private steps: SagaStep[] = [];
 
-  // Publish for read model update
-  await eventBus.publish('order.created', command);
+  constructor(private eventBus: EventBus) {
+    this.steps = [
+      {
+        name: 'reserveInventory',
+        execute: (ctx) => this.inventoryService.reserve(ctx.orderId, ctx.items),
+        compensate: (ctx) => this.inventoryService.release(ctx.orderId),
+      },
+      {
+        name: 'processPayment',
+        execute: (ctx) => this.paymentService.charge(ctx.orderId, ctx.total),
+        compensate: (ctx) => this.paymentService.refund(ctx.orderId),
+      },
+      {
+        name: 'createShipment',
+        execute: (ctx) => this.shipmentService.create(ctx.orderId),
+        compensate: (ctx) => this.shipmentService.cancel(ctx.orderId),
+      },
+    ];
+  }
 
-  return order.id;
+  async execute(context: OrderContext): Promise<SagaResult> {
+    const completedSteps: SagaStep[] = [];
+
+    try {
+      for (const step of this.steps) {
+        console.log(`Executing step: ${step.name}`);
+        await step.execute(context);
+        completedSteps.push(step);
+      }
+
+      return { success: true, orderId: context.orderId };
+    } catch (error) {
+      console.error(`Saga failed at step, compensating...`, error);
+
+      // Compensate in reverse order
+      for (const step of completedSteps.reverse()) {
+        try {
+          console.log(`Compensating step: ${step.name}`);
+          await step.compensate(context);
+        } catch (compensationError) {
+          console.error(`Compensation failed for ${step.name}:`, compensationError);
+          // Alert for manual intervention
+          await this.alertService.critical(`Saga compensation failed: ${step.name}`);
+        }
+      }
+
+      return { success: false, error: String(error) };
+    }
+  }
 }
-
-// Query Handler (reads from optimized read model)
-async function getOrderDetails(orderId) {
-  const order = await orderReadModel.findById(orderId);
-  return order;
-}
-
-// Update read model from events
-eventBus.subscribe('order.*', async (event) => {
-  await orderReadModel.update(event);
-});
 ```
 
-## SAGA Pattern for Distributed Transactions
+### Choreography (Decentralized)
 
-### Choreography (Event-driven)
-
-```javascript
-// Order Service
-app.post('/orders', async (req, res) => {
-  const order = createOrder(req.body);
-  await eventBus.publish('order.created', order);
-  res.json(order);
-});
-
-// Payment Service (subscribes to order.created)
-eventBus.subscribe('order.created', async (order) => {
+```typescript
+// Payment Service
+eventBus.subscribe('order.created', async (event) => {
   try {
-    const payment = await processPayment(order.amount);
-    await eventBus.publish('payment.completed', { orderId: order.id, payment });
+    const payment = await processPayment(event.orderId, event.total);
+    await eventBus.publish('payment.completed', {
+      orderId: event.orderId,
+      paymentId: payment.id,
+    });
   } catch (error) {
-    await eventBus.publish('payment.failed', { orderId: order.id, error });
+    await eventBus.publish('payment.failed', {
+      orderId: event.orderId,
+      error: String(error),
+    });
   }
 });
 
-// Inventory Service (subscribes to payment.completed)
+// Inventory Service
 eventBus.subscribe('payment.completed', async (event) => {
   try {
     await reserveInventory(event.orderId);
     await eventBus.publish('inventory.reserved', { orderId: event.orderId });
   } catch (error) {
-    await eventBus.publish('inventory.failed', { orderId: event.orderId });
-    // Trigger compensation: refund payment
-    await eventBus.publish('refund.requested', { orderId: event.orderId });
+    // Trigger compensation
+    await eventBus.publish('inventory.failed', {
+      orderId: event.orderId,
+      error: String(error),
+    });
   }
 });
 
-// Compensate payment failure
+// Compensation handlers
 eventBus.subscribe('inventory.failed', async (event) => {
   await refundPayment(event.orderId);
+  await eventBus.publish('order.failed', { orderId: event.orderId });
+});
+
+eventBus.subscribe('payment.failed', async (event) => {
+  await updateOrderStatus(event.orderId, 'payment_failed');
 });
 ```
 
-### Orchestration (Centralized)
-
-```javascript
-class OrderSaga {
-  async executeOrder(order) {
-    try {
-      // Step 1: Process Payment
-      const paymentResult = await this.paymentService.charge(order.amount);
-      console.log('Payment succeeded');
-
-      // Step 2: Reserve Inventory
-      const inventoryResult = await this.inventoryService.reserve(order.items);
-      console.log('Inventory reserved');
-
-      // Step 3: Create Shipment
-      const shipmentResult = await this.shipmentService.create(order);
-      console.log('Shipment created');
-
-      return { status: 'completed', paymentResult, inventoryResult, shipmentResult };
-
-    } catch (error) {
-      // Compensate in reverse order
-      await this.compensate(order);
-      throw error;
-    }
-  }
-
-  async compensate(order) {
-    try {
-      await this.paymentService.refund(order.paymentId);
-      await this.inventoryService.release(order.inventoryId);
-      await this.shipmentService.cancel(order.shipmentId);
-    } catch (error) {
-      console.error('Compensation failed:', error);
-    }
-  }
-}
-```
-
-## Async Operations with Job Queues
-
-### Bull Queue (Redis-backed)
-
-```javascript
-const Queue = require('bull');
-
-// Create queue
-const emailQueue = new Queue('emails', {
-  redis: { host: 'localhost', port: 6379 }
-});
-
-// Enqueue job
-app.post('/send-email', async (req, res) => {
-  const job = await emailQueue.add(
-    {
-      to: req.body.email,
-      template: 'welcome',
-      data: req.body
-    },
-    {
-      attempts: 3,
-      backoff: { type: 'exponential', delay: 2000 },
-      removeOnComplete: true
-    }
-  );
-
-  res.json({ jobId: job.id });
-});
-
-// Process jobs
-emailQueue.process(async (job) => {
-  const { to, template, data } = job.data;
-  await sendEmail(to, template, data);
-});
-
-// Handle failures
-emailQueue.on('failed', (job, error) => {
-  console.error(`Job ${job.id} failed:`, error);
-});
-```
-
-## AI Agent Integration
-
-### LLM API Integration
+## Circuit Breaker
 
 ```typescript
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic();
-
-async function processOrderWithAI(orderData: Record<string, unknown>) {
-  const message = await client.messages.create({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 1024,
-    messages: [
-      {
-        role: "user",
-        content: `Analyze this order and suggest optimizations:\n${JSON.stringify(orderData)}`
-      }
-    ]
-  });
-
-  return message.content[0].type === 'text' ? message.content[0].text : '';
+enum CircuitState {
+  CLOSED = 'CLOSED',
+  OPEN = 'OPEN',
+  HALF_OPEN = 'HALF_OPEN',
 }
 
-// Use in API
-app.post('/orders/analyze', async (req, res) => {
-  const analysis = await processOrderWithAI(req.body);
-  res.json({ analysis });
-});
-```
-
-### Agentic Workflows
-
-```typescript
-interface Agent {
-  name: string;
-  goal: string;
-  tools: Tool[];
-}
-
-interface Tool {
-  name: string;
-  description: string;
-  execute: (args: unknown) => Promise<unknown>;
-}
-
-class AutonomousAgent {
-  private model = "claude-3-5-sonnet-20241022";
-  private tools: Tool[] = [];
-
-  addTool(tool: Tool) {
-    this.tools.push(tool);
-  }
-
-  async run(task: string) {
-    let messages: Array<{ role: string; content: unknown }> = [
-      { role: "user", content: task }
-    ];
-
-    while (true) {
-      const response = await client.messages.create({
-        model: this.model,
-        max_tokens: 1024,
-        tools: this.tools.map(t => ({
-          name: t.name,
-          description: t.description
-        })),
-        messages
-      });
-
-      // Check if agent wants to use tools
-      const toolUse = response.content.find(c => c.type === 'tool_use');
-
-      if (!toolUse) {
-        // Agent is done
-        return response.content.find(c => c.type === 'text')?.text;
-      }
-
-      // Execute tool
-      const result = await this.executeTool(toolUse.name, toolUse.input);
-
-      // Continue conversation
-      messages = [
-        ...messages,
-        { role: "assistant", content: response.content },
-        { role: "user", content: [{ type: "tool_result", tool_use_id: toolUse.id, content: JSON.stringify(result) }] }
-      ];
-    }
-  }
-
-  private async executeTool(name: string, input: unknown) {
-    const tool = this.tools.find(t => t.name === name);
-    if (!tool) throw new Error(`Tool not found: ${name}`);
-    return tool.execute(input);
-  }
-}
-```
-
-## Circuit Breaker Pattern
-
-```javascript
 class CircuitBreaker {
-  constructor(fn, options = {}) {
-    this.fn = fn;
-    this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
-    this.failureCount = 0;
-    this.failureThreshold = options.failureThreshold || 5;
-    this.timeout = options.timeout || 60000;
-    this.lastFailureTime = null;
-  }
+  private state = CircuitState.CLOSED;
+  private failureCount = 0;
+  private successCount = 0;
+  private lastFailureTime: number | null = null;
 
-  async call(...args) {
-    if (this.state === 'OPEN') {
-      if (Date.now() - this.lastFailureTime > this.timeout) {
-        this.state = 'HALF_OPEN';
+  constructor(
+    private fn: (...args: any[]) => Promise<any>,
+    private options: {
+      failureThreshold: number;
+      successThreshold: number;
+      timeout: number;
+    } = { failureThreshold: 5, successThreshold: 3, timeout: 30000 }
+  ) {}
+
+  async call<T>(...args: any[]): Promise<T> {
+    if (this.state === CircuitState.OPEN) {
+      if (Date.now() - this.lastFailureTime! >= this.options.timeout) {
+        this.state = CircuitState.HALF_OPEN;
+        console.log('Circuit breaker: HALF_OPEN');
       } else {
         throw new Error('Circuit breaker is OPEN');
       }
@@ -424,60 +483,194 @@ class CircuitBreaker {
 
     try {
       const result = await this.fn(...args);
-
-      if (this.state === 'HALF_OPEN') {
-        this.state = 'CLOSED';
-        this.failureCount = 0;
-      }
-
+      this.onSuccess();
       return result;
-
     } catch (error) {
-      this.failureCount++;
-      this.lastFailureTime = Date.now();
+      this.onFailure();
+      throw error;
+    }
+  }
 
-      if (this.failureCount >= this.failureThreshold) {
-        this.state = 'OPEN';
+  private onSuccess(): void {
+    this.failureCount = 0;
+    if (this.state === CircuitState.HALF_OPEN) {
+      this.successCount++;
+      if (this.successCount >= this.options.successThreshold) {
+        this.state = CircuitState.CLOSED;
+        this.successCount = 0;
+        console.log('Circuit breaker: CLOSED');
+      }
+    }
+  }
+
+  private onFailure(): void {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    if (this.failureCount >= this.options.failureThreshold) {
+      this.state = CircuitState.OPEN;
+      console.log('Circuit breaker: OPEN');
+    }
+  }
+}
+
+// Usage with services
+const userServiceBreaker = new CircuitBreaker(
+  (userId) => fetch(`http://user-service/users/${userId}`).then(r => r.json()),
+  { failureThreshold: 5, successThreshold: 3, timeout: 30000 }
+);
+
+async function getUser(userId: string) {
+  try {
+    return await userServiceBreaker.call(userId);
+  } catch (error) {
+    // Fallback to cache
+    return await cache.get(`user:${userId}`);
+  }
+}
+```
+
+## AI Agent Integration
+
+```typescript
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic();
+
+interface Tool {
+  name: string;
+  description: string;
+  input_schema: object;
+  execute: (input: any) => Promise<any>;
+}
+
+class AIAgent {
+  private tools: Tool[] = [];
+  private model = 'claude-sonnet-4-20250514';
+
+  addTool(tool: Tool): void {
+    this.tools.push(tool);
+  }
+
+  async run(task: string): Promise<string> {
+    const messages: Anthropic.MessageParam[] = [
+      { role: 'user', content: task },
+    ];
+
+    while (true) {
+      const response = await client.messages.create({
+        model: this.model,
+        max_tokens: 4096,
+        tools: this.tools.map(t => ({
+          name: t.name,
+          description: t.description,
+          input_schema: t.input_schema,
+        })),
+        messages,
+      });
+
+      // Check for tool use
+      const toolUseBlock = response.content.find(
+        (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use'
+      );
+
+      if (!toolUseBlock) {
+        // No tool use, return final response
+        const textBlock = response.content.find(
+          (block): block is Anthropic.TextBlock => block.type === 'text'
+        );
+        return textBlock?.text || '';
       }
 
-      throw error;
+      // Execute tool
+      const tool = this.tools.find(t => t.name === toolUseBlock.name);
+      if (!tool) {
+        throw new Error(`Unknown tool: ${toolUseBlock.name}`);
+      }
+
+      const toolResult = await tool.execute(toolUseBlock.input);
+
+      // Continue conversation with tool result
+      messages.push(
+        { role: 'assistant', content: response.content },
+        {
+          role: 'user',
+          content: [{
+            type: 'tool_result',
+            tool_use_id: toolUseBlock.id,
+            content: JSON.stringify(toolResult),
+          }],
+        }
+      );
     }
   }
 }
 
 // Usage
-const externalAPI = new CircuitBreaker(
-  async (url) => fetch(url).then(r => r.json()),
-  { failureThreshold: 5, timeout: 60000 }
-);
+const agent = new AIAgent();
 
-try {
-  const data = await externalAPI.call('https://api.example.com/data');
-} catch (error) {
-  console.error('API call failed:', error);
-  // Fallback to cached data
-}
+agent.addTool({
+  name: 'get_order_status',
+  description: 'Get the current status of an order by ID',
+  input_schema: {
+    type: 'object',
+    properties: {
+      order_id: { type: 'string', description: 'The order ID' },
+    },
+    required: ['order_id'],
+  },
+  execute: async (input) => {
+    const order = await orderService.getById(input.order_id);
+    return { status: order.status, items: order.items.length };
+  },
+});
+
+const result = await agent.run('What is the status of order ORD-123?');
 ```
 
-## Scaling Patterns Checklist
+---
 
-- [ ] Service boundaries identified
-- [ ] Communication patterns chosen (sync/async)
-- [ ] Event sourcing considered
-- [ ] SAGA pattern for transactions
-- [ ] Job queues for async work
-- [ ] Circuit breaker for resilience
-- [ ] Monitoring and observability
-- [ ] Error handling and recovery
-- [ ] Data consistency strategy
-- [ ] Disaster recovery plan
+## Troubleshooting Guide
+
+### Common Failure Modes
+
+| Symptom | Root Cause | Solution |
+|---------|-----------|----------|
+| Message loss | No persistence | Use durable queues |
+| Duplicate processing | No idempotency | Implement idempotency keys |
+| Cascading failures | No circuit breaker | Add circuit breakers |
+| Data inconsistency | No saga compensation | Implement compensating transactions |
+
+### Debug Checklist
+
+```bash
+# 1. Check service health
+curl http://service/health
+
+# 2. Check message queue
+rabbitmqctl list_queues
+
+# 3. Check distributed traces
+# Open Jaeger/Zipkin UI
+
+# 4. Check circuit breaker state
+curl http://service/actuator/circuitbreakers
+```
 
 ---
 
-**You've reached expertise across all 7 domains!**
+## Quality Checklist
 
-API Architecture → Backend Patterns → Database & Performance → DevOps → Security → Frontend → Scaling Patterns
+- [ ] Service boundaries clearly defined
+- [ ] Async communication for state changes
+- [ ] Circuit breakers on external calls
+- [ ] Saga pattern for distributed transactions
+- [ ] Idempotency in event handlers
+- [ ] Dead letter queues for failed messages
+- [ ] Distributed tracing enabled
+- [ ] Health checks on all services
+- [ ] Graceful degradation implemented
+- [ ] Chaos testing performed
 
 ---
 
-*Use the /architect command to design your complete plugin system leveraging all these patterns.*
+**Handoff:** Backend implementation → Agent 02 | Infrastructure → Agent 04 | Security → Agent 05

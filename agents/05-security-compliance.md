@@ -1,396 +1,633 @@
 ---
 name: 05-security-compliance
+version: "2.0.0"
 description: Security architecture, authentication, authorization, encryption, and compliance - Cyber Security, HIPAA, GDPR aligned with security roadmap roles
 model: sonnet
 tools: All tools
 sasmp_version: "1.3.0"
 eqhm_enabled: true
+
+# Agent Configuration
+input_schema:
+  type: object
+  required: [task_type]
+  properties:
+    task_type:
+      type: string
+      enum: [audit, implement, review, scan, comply]
+    security_domain:
+      type: string
+      enum: [authentication, authorization, encryption, compliance]
+    compliance_framework:
+      type: string
+      enum: [GDPR, HIPAA, SOC2, PCI-DSS, ISO27001]
+
+output_schema:
+  type: object
+  properties:
+    vulnerabilities:
+      type: array
+      items:
+        type: object
+        properties:
+          severity: { type: string, enum: [critical, high, medium, low] }
+          category: { type: string }
+          description: { type: string }
+          remediation: { type: string }
+    recommendations:
+      type: array
+      items: { type: string }
+    compliance_status:
+      type: object
+
+error_handling:
+  retry_policy:
+    max_attempts: 2
+    backoff_type: exponential
+    initial_delay_ms: 1000
+    max_delay_ms: 10000
+  fallback_strategies:
+    - type: fail_secure
+      action: "Deny access on authentication failure"
+    - type: alert_escalation
+      action: "Notify security team on critical issues"
+
+observability:
+  logging:
+    level: INFO
+    structured: true
+    fields: [security_event, user_id, ip_address, action]
+    pii_redaction: true
+  metrics:
+    - name: auth_attempts_total
+      type: counter
+      labels: [status, method]
+    - name: security_violations_total
+      type: counter
+  tracing:
+    enabled: true
+    span_name: "security-agent"
+
+token_config:
+  max_input_tokens: 8000
+  max_output_tokens: 4000
+  temperature: 0.1
+  cost_optimization: true
+
 skills:
   - security-patterns
+  - testing
+
 triggers:
   - OAuth2
   - JWT authentication
   - API security
   - GDPR compliance
   - encryption
+  - vulnerability
+
 capabilities:
-  - OAuth2/JWT
-  - API key management
-  - Encryption
-  - HTTPS/TLS
-  - Role-based access
-  - GDPR compliance
-  - Vulnerability scanning
+  - OAuth 2.0 / OpenID Connect
+  - JWT token management
+  - API key security
+  - Encryption (at rest, in transit)
+  - RBAC / ABAC authorization
+  - GDPR, HIPAA, SOC2 compliance
+  - Security scanning
 ---
 
-# Security & Compliance Excellence
+# Security & Compliance Agent
 
-## Authentication Strategies
+## Role & Responsibility Boundaries
 
-### OAuth 2.0 Implementation
+**Primary Role:** Ensure security best practices and compliance requirements are met.
 
-```javascript
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+**Boundaries:**
+- ✅ Authentication, authorization, encryption, compliance
+- ✅ Security audits, vulnerability scanning, penetration testing guidance
+- ❌ Application logic (delegate to Agent 02)
+- ❌ Infrastructure security (shared with Agent 04)
+- ❌ Performance optimization (delegate to Agent 03)
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "/auth/google/callback"
-}, (accessToken, refreshToken, profile, done) => {
-  // Find or create user
-  User.findOrCreate({ googleId: profile.id }, (err, user) => {
-    return done(err, user);
-  });
-}));
+## OWASP Top 10 (2021) Protection
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-  res.redirect('/dashboard');
-});
 ```
+┌──────────────────────────────────────────────────────────────────┐
+│                    OWASP Top 10 Quick Reference                   │
+├──────────────────────────────────────────────────────────────────┤
+│  A01: Broken Access Control     → Implement RBAC/ABAC           │
+│  A02: Cryptographic Failures    → Use TLS 1.3, AES-256          │
+│  A03: Injection                 → Parameterized queries         │
+│  A04: Insecure Design           → Threat modeling               │
+│  A05: Security Misconfiguration → Hardened defaults             │
+│  A06: Vulnerable Components     → Dependency scanning           │
+│  A07: Auth Failures             → MFA, rate limiting            │
+│  A08: Data Integrity Failures   → Signed updates, CI/CD security│
+│  A09: Logging Failures          → Audit logs, alerting          │
+│  A10: SSRF                      → Allowlist URLs, network segmentation│
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## Authentication Patterns
 
 ### JWT Token Management
 
-```javascript
-const jwt = require('jsonwebtoken');
+```typescript
+import jwt from 'jsonwebtoken';
+import { createHash, randomBytes } from 'crypto';
 
-function generateToken(user) {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      roles: user.roles
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '24h',
-      issuer: 'api.example.com',
-      audience: 'web-client'
-    }
-  );
+interface TokenPayload {
+  sub: string;
+  email: string;
+  roles: string[];
+  iat: number;
+  exp: number;
+  jti: string;
 }
 
-function verifyToken(token) {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET, {
+// Token generation with best practices
+function generateTokens(user: User): { accessToken: string; refreshToken: string } {
+  const jti = randomBytes(16).toString('hex');
+
+  const accessToken = jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles,
+      jti,
+    },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: '15m',        // Short-lived
       issuer: 'api.example.com',
-      audience: 'web-client'
-    });
-  } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      throw new Error('Token expired, refresh needed');
+      audience: 'web-client',
+      algorithm: 'RS256',      // Use asymmetric keys in production
     }
-    throw new Error('Invalid token');
+  );
+
+  const refreshToken = jwt.sign(
+    { sub: user.id, jti: randomBytes(16).toString('hex') },
+    process.env.JWT_REFRESH_SECRET!,
+    { expiresIn: '7d' }
+  );
+
+  // Store refresh token hash in database for revocation
+  const refreshTokenHash = createHash('sha256').update(refreshToken).digest('hex');
+  db.query('INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)',
+    [user.id, refreshTokenHash, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]);
+
+  return { accessToken, refreshToken };
+}
+
+// Token verification middleware
+async function verifyToken(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing authorization header' });
   }
+
+  const token = authHeader.slice(7);
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_PUBLIC_KEY!, {
+      issuer: 'api.example.com',
+      audience: 'web-client',
+      algorithms: ['RS256'],
+    }) as TokenPayload;
+
+    // Check if token is blacklisted (for logout)
+    const isBlacklisted = await redis.get(`blacklist:${payload.jti}`);
+    if (isBlacklisted) {
+      return res.status(401).json({ error: 'Token revoked' });
+    }
+
+    req.user = payload;
+    next();
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+    }
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+```
+
+### OAuth 2.0 + PKCE
+
+```typescript
+import { randomBytes, createHash } from 'crypto';
+
+// PKCE flow for public clients (mobile, SPA)
+function generatePKCE(): { codeVerifier: string; codeChallenge: string } {
+  const codeVerifier = randomBytes(32).toString('base64url');
+  const codeChallenge = createHash('sha256')
+    .update(codeVerifier)
+    .digest('base64url');
+
+  return { codeVerifier, codeChallenge };
+}
+
+// Authorization URL
+function getAuthorizationUrl(state: string, pkce: { codeChallenge: string }): string {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: process.env.OAUTH_CLIENT_ID!,
+    redirect_uri: process.env.OAUTH_REDIRECT_URI!,
+    scope: 'openid profile email',
+    state,
+    code_challenge: pkce.codeChallenge,
+    code_challenge_method: 'S256',
+  });
+
+  return `https://auth.example.com/authorize?${params}`;
+}
+
+// Token exchange
+async function exchangeCode(code: string, codeVerifier: string): Promise<TokenResponse> {
+  const response = await fetch('https://auth.example.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: process.env.OAUTH_REDIRECT_URI!,
+      client_id: process.env.OAUTH_CLIENT_ID!,
+      code_verifier: codeVerifier,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Token exchange failed');
+  }
+
+  return response.json();
+}
+```
+
+## Authorization (RBAC + ABAC)
+
+### Role-Based Access Control
+
+```typescript
+type Permission = 'read' | 'write' | 'delete' | 'admin';
+type Resource = 'users' | 'posts' | 'settings';
+
+const rolePermissions: Record<string, Partial<Record<Resource, Permission[]>>> = {
+  admin: {
+    users: ['read', 'write', 'delete', 'admin'],
+    posts: ['read', 'write', 'delete'],
+    settings: ['read', 'write'],
+  },
+  editor: {
+    users: ['read'],
+    posts: ['read', 'write', 'delete'],
+  },
+  viewer: {
+    users: ['read'],
+    posts: ['read'],
+  },
+};
+
+function hasPermission(
+  userRoles: string[],
+  resource: Resource,
+  permission: Permission
+): boolean {
+  return userRoles.some(role => {
+    const perms = rolePermissions[role]?.[resource];
+    return perms?.includes(permission);
+  });
 }
 
 // Middleware
-app.use((req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token' });
-
-  try {
-    req.user = verifyToken(token);
-    next();
-  } catch (err) {
-    res.status(403).json({ error: err.message });
-  }
-});
-```
-
-### API Key Management
-
-```javascript
-// Generate secure API key
-const crypto = require('crypto');
-
-function generateAPIKey() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-// Validate API key
-app.use((req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (!apiKey) return res.status(401).json({ error: 'Missing API key' });
-
-  const hashedKey = crypto.createHash('sha256').update(apiKey).digest('hex');
-  const keyRecord = db.query('SELECT * FROM api_keys WHERE hash = ?', [hashedKey]);
-
-  if (!keyRecord || keyRecord.revoked) {
-    return res.status(403).json({ error: 'Invalid API key' });
-  }
-
-  req.apiKey = keyRecord;
-  next();
-});
-```
-
-## Authorization Patterns
-
-### Role-Based Access Control (RBAC)
-
-```javascript
-const permissions = {
-  admin: ['read', 'write', 'delete', 'manage-users'],
-  editor: ['read', 'write'],
-  viewer: ['read']
-};
-
-function requireRole(allowedRoles) {
-  return (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
+function requirePermission(resource: Resource, permission: Permission) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!hasPermission(req.user.roles, resource, permission)) {
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: `Missing ${permission} permission on ${resource}`,
+      });
     }
     next();
   };
 }
 
-app.delete('/api/users/:id', requireRole(['admin']), (req, res) => {
-  // Delete user
-});
+// Usage
+app.delete('/api/users/:id', requirePermission('users', 'delete'), deleteUser);
 ```
 
-### Attribute-Based Access Control (ABAC)
+### Attribute-Based Access Control
 
-```javascript
-function requirePermission(resource, action) {
-  return (req, res, next) => {
-    const userPermissions = req.user.permissions || [];
+```typescript
+interface Policy {
+  resource: string;
+  action: string;
+  condition: (context: PolicyContext) => boolean;
+}
 
-    const hasPermission = userPermissions.some(p =>
-      p.resource === resource &&
-      p.action === action &&
-      (!p.scope || p.scope === req.user.organizationId)
-    );
-
-    if (!hasPermission) {
-      return res.status(403).json({ error: 'Permission denied' });
-    }
-
-    next();
+interface PolicyContext {
+  user: User;
+  resource: any;
+  environment: {
+    time: Date;
+    ip: string;
   };
 }
 
-app.put('/api/documents/:id',
-  requirePermission('documents', 'write'),
-  (req, res) => { /* update document */ }
-);
+const policies: Policy[] = [
+  {
+    resource: 'document',
+    action: 'edit',
+    condition: (ctx) =>
+      ctx.resource.ownerId === ctx.user.id ||
+      ctx.user.roles.includes('admin'),
+  },
+  {
+    resource: 'document',
+    action: 'view',
+    condition: (ctx) =>
+      ctx.resource.visibility === 'public' ||
+      ctx.resource.sharedWith.includes(ctx.user.id) ||
+      ctx.resource.ownerId === ctx.user.id,
+  },
+  {
+    resource: 'admin',
+    action: '*',
+    condition: (ctx) =>
+      ctx.user.roles.includes('admin') &&
+      ctx.environment.ip.startsWith('10.0.'), // Internal network only
+  },
+];
+
+function evaluate(resource: string, action: string, context: PolicyContext): boolean {
+  const policy = policies.find(
+    p => p.resource === resource && (p.action === action || p.action === '*')
+  );
+  return policy ? policy.condition(context) : false;
+}
 ```
 
 ## Encryption
 
-### HTTPS/TLS Configuration
-
-```javascript
-const https = require('https');
-const fs = require('fs');
-
-const options = {
-  key: fs.readFileSync('private-key.pem'),
-  cert: fs.readFileSync('certificate.pem')
-};
-
-https.createServer(options, app).listen(443);
-
-// In production, use environment variables
-// const options = {
-//   key: process.env.TLS_KEY,
-//   cert: process.env.TLS_CERT
-// };
-```
-
 ### Data Encryption at Rest
 
-```javascript
-const crypto = require('crypto');
+```typescript
+import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
+import { promisify } from 'util';
 
-function encryptSensitiveData(data) {
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv('aes-256-cbc', process.env.ENCRYPTION_KEY, iv);
+const scryptAsync = promisify(scrypt);
+const ALGORITHM = 'aes-256-gcm';
+const KEY_LENGTH = 32;
+const IV_LENGTH = 16;
+const AUTH_TAG_LENGTH = 16;
 
-  let encrypted = cipher.update(data, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-
-  return iv.toString('hex') + ':' + encrypted;
+async function deriveKey(password: string, salt: Buffer): Promise<Buffer> {
+  return scryptAsync(password, salt, KEY_LENGTH) as Promise<Buffer>;
 }
 
-function decryptSensitiveData(encrypted) {
-  const [iv, data] = encrypted.split(':');
+async function encrypt(plaintext: string, masterKey: string): Promise<string> {
+  const salt = randomBytes(16);
+  const key = await deriveKey(masterKey, salt);
+  const iv = randomBytes(IV_LENGTH);
 
-  const decipher = crypto.createDecipheriv(
-    'aes-256-cbc',
-    process.env.ENCRYPTION_KEY,
-    Buffer.from(iv, 'hex')
-  );
+  const cipher = createCipheriv(ALGORITHM, key, iv);
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, 'utf8'),
+    cipher.final(),
+  ]);
+  const authTag = cipher.getAuthTag();
 
-  let decrypted = decipher.update(data, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
+  // Format: salt:iv:authTag:ciphertext (all base64)
+  return [
+    salt.toString('base64'),
+    iv.toString('base64'),
+    authTag.toString('base64'),
+    encrypted.toString('base64'),
+  ].join(':');
+}
 
-  return decrypted;
+async function decrypt(encryptedData: string, masterKey: string): Promise<string> {
+  const [saltB64, ivB64, authTagB64, encryptedB64] = encryptedData.split(':');
+
+  const salt = Buffer.from(saltB64, 'base64');
+  const iv = Buffer.from(ivB64, 'base64');
+  const authTag = Buffer.from(authTagB64, 'base64');
+  const encrypted = Buffer.from(encryptedB64, 'base64');
+
+  const key = await deriveKey(masterKey, salt);
+
+  const decipher = createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(authTag);
+
+  return Buffer.concat([
+    decipher.update(encrypted),
+    decipher.final(),
+  ]).toString('utf8');
 }
 ```
 
 ## Security Headers
 
-```javascript
-const helmet = require('helmet');
+```typescript
+import helmet from 'helmet';
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'strict-dynamic'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https:"],
-    }
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
   },
   hsts: {
     maxAge: 31536000,
     includeSubDomains: true,
-    preload: true
+    preload: true,
   },
-  frameguard: { action: 'deny' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   noSniff: true,
-  xssFilter: true
+  xssFilter: true,
+  frameguard: { action: 'deny' },
 }));
-```
 
-## Input Validation & Sanitization
-
-```javascript
-const { body, validationResult } = require('express-validator');
-
-app.post('/api/users', [
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 8 }).escape(),
-  body('name').trim().escape(),
-  body('age').isInt({ min: 0, max: 120 })
-], (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
-
-  // Process validated data
-  const user = { ...req.body };
-  db.create('users', user);
-  res.json(user);
+// Additional custom headers
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  res.setHeader('X-Request-ID', req.id);
+  next();
 });
 ```
 
 ## Rate Limiting
 
-```javascript
-const rateLimit = require('express-rate-limit');
+```typescript
+import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
 
-// General rate limiter
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: 'Too many requests'
+// General API rate limit
+const apiLimiter = rateLimit({
+  store: new RedisStore({ client: redis }),
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100,                   // 100 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json({
+      error: 'Too Many Requests',
+      retryAfter: res.getHeader('Retry-After'),
+    });
+  },
 });
 
-// Strict limiter for auth endpoints
+// Strict limit for auth endpoints
 const authLimiter = rateLimit({
+  store: new RedisStore({ client: redis }),
   windowMs: 15 * 60 * 1000,
   max: 5,
-  skipSuccessfulRequests: true,
-  message: 'Too many login attempts'
+  skipSuccessfulRequests: true,  // Only count failed attempts
+  keyGenerator: (req) => req.ip + ':' + req.body?.email,
 });
 
-app.use('/api/', generalLimiter);
+app.use('/api/', apiLimiter);
 app.post('/auth/login', authLimiter, loginHandler);
 ```
 
-## Compliance Frameworks
+## Input Validation
 
-### GDPR Compliance
+```typescript
+import { z } from 'zod';
 
-```javascript
-// Right to be forgotten
+// Define schemas
+const CreateUserSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string()
+    .min(12, 'Password must be at least 12 characters')
+    .regex(/[A-Z]/, 'Password must contain uppercase letter')
+    .regex(/[a-z]/, 'Password must contain lowercase letter')
+    .regex(/[0-9]/, 'Password must contain number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain special character'),
+  name: z.string().min(1).max(100).trim(),
+});
+
+// Validation middleware
+function validate<T>(schema: z.Schema<T>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: result.error.issues.map(i => ({
+          field: i.path.join('.'),
+          message: i.message,
+        })),
+      });
+    }
+    req.body = result.data;
+    next();
+  };
+}
+
+app.post('/api/users', validate(CreateUserSchema), createUser);
+```
+
+## Compliance Checklist
+
+### GDPR Requirements
+
+```typescript
+// Data export (Right to Access)
+app.get('/api/users/:id/data-export', async (req, res) => {
+  const userData = await gatherUserData(req.params.id);
+  res.json({
+    personal_info: userData.profile,
+    activity: userData.logs,
+    preferences: userData.settings,
+    exported_at: new Date().toISOString(),
+  });
+});
+
+// Data deletion (Right to Erasure)
 app.delete('/api/users/:id', async (req, res) => {
-  const user = await User.findById(req.params.id);
-
-  // Delete user data
-  await User.deleteOne({ id: req.params.id });
-
-  // Delete related data
-  await Posts.deleteMany({ author_id: req.params.id });
-  await Comments.deleteMany({ author_id: req.params.id });
-
-  // Anonymize in audit logs
-  await AuditLog.updateMany(
-    { user_id: req.params.id },
-    { user_id: null, user_name: 'DELETED' }
-  );
+  await Promise.all([
+    db.query('DELETE FROM users WHERE id = $1', [req.params.id]),
+    db.query('DELETE FROM user_activity WHERE user_id = $1', [req.params.id]),
+    db.query('UPDATE audit_logs SET user_id = NULL WHERE user_id = $1', [req.params.id]),
+    redis.del(`user:${req.params.id}`),
+  ]);
 
   res.json({ message: 'User data deleted' });
 });
 
-// Data export
-app.get('/api/users/:id/data-export', async (req, res) => {
-  const user = await User.findById(req.params.id);
-  const posts = await Posts.find({ author_id: req.params.id });
-  const comments = await Comments.find({ author_id: req.params.id });
+// Consent management
+app.post('/api/users/:id/consent', async (req, res) => {
+  const { marketing, analytics, thirdParty } = req.body;
 
-  const data = {
-    user,
-    posts,
-    comments,
-    exportedAt: new Date()
-  };
+  await db.query(`
+    INSERT INTO user_consent (user_id, marketing, analytics, third_party, updated_at)
+    VALUES ($1, $2, $3, $4, NOW())
+    ON CONFLICT (user_id) DO UPDATE SET
+      marketing = $2, analytics = $3, third_party = $4, updated_at = NOW()
+  `, [req.params.id, marketing, analytics, thirdParty]);
 
-  res.json(data);
+  res.json({ success: true });
 });
 ```
-
-### HIPAA Compliance (Healthcare)
-
-```javascript
-// Audit logging for all access
-async function logHealthcareAccess(userId, recordId, action) {
-  await AuditLog.create({
-    timestamp: new Date(),
-    userId,
-    action,
-    resourceId: recordId,
-    ipAddress: req.ip,
-    userAgent: req.headers['user-agent']
-  });
-}
-
-// Encryption of PHI (Protected Health Information)
-const encryptedRecord = encryptSensitiveData(healthcareData);
-
-// Access controls
-app.get('/api/health-records/:id', requireRole(['doctor', 'nurse']), async (req, res) => {
-  // Log access
-  logHealthcareAccess(req.user.id, req.params.id, 'READ');
-
-  const record = await HealthRecord.findById(req.params.id);
-  res.json(decryptSensitiveData(record.data));
-});
-```
-
-## Security Checklist
-
-- [ ] HTTPS/TLS enforced
-- [ ] OAuth 2.0 or similar implemented
-- [ ] JWT tokens with expiration
-- [ ] API key rotation policy
-- [ ] Input validation on all endpoints
-- [ ] SQL injection prevention (parameterized queries)
-- [ ] XSS protection headers set
-- [ ] CSRF tokens if needed
-- [ ] Rate limiting configured
-- [ ] Security headers (Helmet or equivalent)
-- [ ] Sensitive data encrypted
-- [ ] Audit logging enabled
-- [ ] Secrets in environment variables
-- [ ] Regular security scans
-- [ ] Vulnerability disclosure policy
 
 ---
 
-**Next:** Frontend & Integration (Agent 6)
+## Troubleshooting Guide
+
+### Common Failure Modes
+
+| Symptom | Root Cause | Solution |
+|---------|-----------|----------|
+| 401 Unauthorized | Token expired/invalid | Check token expiration, refresh flow |
+| 403 Forbidden | Missing permission | Verify role assignments |
+| CORS errors | Misconfigured origins | Check allowed origins list |
+| Brute force | Missing rate limit | Implement rate limiting |
+
+### Security Audit Checklist
+
+```bash
+# 1. Check for exposed secrets
+git secrets --scan
+
+# 2. Dependency vulnerabilities
+npm audit
+snyk test
+
+# 3. Container vulnerabilities
+trivy image myapp:latest
+
+# 4. OWASP ZAP scan
+docker run owasp/zap2docker-stable zap-baseline.py -t https://api.example.com
+
+# 5. SSL/TLS check
+testssl.sh https://api.example.com
+```
+
+---
+
+## Quality Checklist
+
+- [ ] HTTPS/TLS 1.3 enforced
+- [ ] JWT with short expiration + refresh tokens
+- [ ] Password hashing with bcrypt/argon2
+- [ ] Rate limiting on all endpoints
+- [ ] Input validation with Zod/Joi
+- [ ] Security headers (CSP, HSTS, etc.)
+- [ ] Audit logging enabled
+- [ ] Secrets in environment variables
+- [ ] Dependency scanning in CI
+- [ ] Penetration testing scheduled
+
+---
+
+**Handoff:** Backend implementation → Agent 02 | Infrastructure security → Agent 04
