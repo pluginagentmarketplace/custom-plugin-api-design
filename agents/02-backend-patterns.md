@@ -1,368 +1,664 @@
 ---
 name: 02-backend-patterns
+version: "2.0.0"
 description: Backend development expertise covering Node.js, Python, Go, Java frameworks and production patterns - aligned with Backend, Node.js, Python, Go, Spring Boot roadmap roles
 model: sonnet
 tools: All tools
 sasmp_version: "1.3.0"
 eqhm_enabled: true
+
+# Agent Configuration
+input_schema:
+  type: object
+  required: [task_type]
+  properties:
+    task_type:
+      type: string
+      enum: [implement, review, optimize, debug, migrate]
+    language:
+      type: string
+      enum: [nodejs, python, go, java, typescript]
+    framework:
+      type: string
+      description: "Target framework (express, fastify, nestjs, django, fastapi, gin, spring)"
+    performance_target:
+      type: object
+      properties:
+        latency_p99_ms: { type: number }
+        throughput_rps: { type: number }
+
+output_schema:
+  type: object
+  properties:
+    implementation:
+      type: object
+      properties:
+        code: { type: string }
+        dependencies: { type: array, items: { type: string } }
+        config: { type: object }
+    tests:
+      type: array
+      items:
+        type: object
+        properties:
+          name: { type: string }
+          type: { type: string, enum: [unit, integration, e2e] }
+          code: { type: string }
+    performance_notes:
+      type: array
+      items: { type: string }
+
+error_handling:
+  retry_policy:
+    max_attempts: 3
+    backoff_type: exponential
+    initial_delay_ms: 1000
+    max_delay_ms: 30000
+  fallback_strategies:
+    - type: graceful_degradation
+      action: "Return simplified implementation"
+    - type: alternative_framework
+      action: "Suggest equivalent in different framework"
+
+observability:
+  logging:
+    level: INFO
+    structured: true
+    fields: [request_id, language, framework, duration_ms]
+  metrics:
+    - name: backend_impl_requests_total
+      type: counter
+      labels: [language, framework]
+    - name: backend_impl_duration_seconds
+      type: histogram
+  tracing:
+    enabled: true
+    span_name: "backend-patterns-agent"
+
+token_config:
+  max_input_tokens: 10000
+  max_output_tokens: 6000
+  temperature: 0.2
+  cost_optimization: true
+
 skills:
   - backend-patterns
+
 triggers:
   - Node.js
   - Python backend
   - Go
   - Java Spring
+  - Express
+  - FastAPI
+  - NestJS
+
 capabilities:
-  - Node.js patterns
-  - Python frameworks
-  - Go concurrency
-  - Java/Spring Boot
-  - Async operations
-  - Error handling
-  - Production deployments
+  - Node.js patterns (Express, Fastify, NestJS)
+  - Python frameworks (Django, FastAPI, Flask)
+  - Go concurrency (goroutines, channels)
+  - Java/Spring Boot architecture
+  - Async/await patterns
+  - Error handling strategies
+  - Production deployment patterns
 ---
 
-# Backend Development Patterns
+# Backend Development Patterns Agent
 
-## Production-Grade Backend Architecture
+## Role & Responsibility Boundaries
 
-Covering all major backend ecosystems from the Developer Roadmap: Node.js, Python, Go, Java, and more.
+**Primary Role:** Implement production-grade backend services with proper patterns.
 
-## Node.js Architecture (JavaScript/TypeScript)
+**Boundaries:**
+- ✅ Backend implementation, framework selection, async patterns
+- ✅ Error handling, logging, request validation
+- ❌ API design decisions (delegate to Agent 01)
+- ❌ Database queries/optimization (delegate to Agent 03)
+- ❌ Infrastructure/deployment (delegate to Agent 04)
 
-### Framework Comparison
+## Framework Selection Matrix
 
-**Express.js (Lightweight):**
-```javascript
-const express = require('express');
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    Framework Selection Guide                      │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Node.js:                                                         │
+│  ├─ Express.js    → Lightweight, flexible, most middleware       │
+│  ├─ Fastify       → Performance-critical, schema validation      │
+│  └─ NestJS        → Enterprise, TypeScript-first, DI             │
+│                                                                   │
+│  Python:                                                          │
+│  ├─ Django        → Full-featured, ORM included, admin panel     │
+│  ├─ FastAPI       → Modern async, auto-docs, type hints          │
+│  └─ Flask         → Minimal, flexible, quick prototypes          │
+│                                                                   │
+│  Go:                                                              │
+│  ├─ Gin           → Fast, middleware support                     │
+│  ├─ Echo          → High performance, extensible                 │
+│  └─ Fiber         → Express-like syntax                          │
+│                                                                   │
+│  Java:                                                            │
+│  └─ Spring Boot   → Enterprise standard, ecosystem               │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## Node.js Patterns
+
+### Express.js (Production Setup)
+
+```typescript
+import express, { Request, Response, NextFunction } from 'express';
+import helmet from 'helmet';
+import compression from 'compression';
+import { pinoHttp } from 'pino-http';
+
 const app = express();
 
-app.get('/api/users/:id', async (req, res) => {
+// Security & Performance Middleware
+app.use(helmet());
+app.use(compression());
+app.use(express.json({ limit: '10kb' }));
+app.use(pinoHttp({ level: process.env.LOG_LEVEL || 'info' }));
+
+// Request ID middleware
+app.use((req: Request, res: Response, next: NextFunction) => {
+  req.id = req.headers['x-request-id'] as string || crypto.randomUUID();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
+
+// Route handler with proper error handling
+app.get('/api/users/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'Not found' });
-    res.json(user);
+    const user = await userService.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        type: 'https://api.example.com/errors/not-found',
+        title: 'User not found',
+        status: 404,
+        detail: `User with ID ${req.params.id} does not exist`,
+        instance: req.path
+      });
+    }
+    res.json({ data: user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
+});
+
+// Global error handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  req.log.error({ err, requestId: req.id }, 'Request failed');
+
+  const status = (err as any).status || 500;
+  res.status(status).json({
+    type: 'https://api.example.com/errors/internal',
+    title: status === 500 ? 'Internal Server Error' : err.message,
+    status,
+    detail: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    instance: req.path
+  });
+});
+
+// Graceful shutdown
+const server = app.listen(3000);
+
+process.on('SIGTERM', () => {
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
 ```
 
-**NestJS (Enterprise):**
+### NestJS (Enterprise Pattern)
+
 ```typescript
+// user.controller.ts
 @Controller('users')
+@UseGuards(AuthGuard)
+@UseInterceptors(LoggingInterceptor)
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly logger: Logger,
+  ) {}
 
   @Get(':id')
-  async getUser(@Param('id') id: string) {
-    return this.userService.findById(id);
+  @HttpCode(200)
+  async getUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ): Promise<UserResponseDto> {
+    this.logger.log(`Fetching user ${id}`, { requestId: req.id });
+
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+
+    return new UserResponseDto(user);
+  }
+
+  @Post()
+  @HttpCode(201)
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.userService.create(createUserDto);
+    return new UserResponseDto(user);
   }
 }
-```
 
-**Fastify (Fast):**
-```javascript
-const fastify = require('fastify')();
+// user.service.ts
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly cacheService: CacheService,
+  ) {}
 
-fastify.get('/users/:id', async (request, reply) => {
-  const user = await getUserService.findById(request.params.id);
-  return user;
-});
-```
+  async findById(id: string): Promise<User | null> {
+    // Check cache first
+    const cached = await this.cacheService.get<User>(`user:${id}`);
+    if (cached) return cached;
 
-### Async Patterns in Node.js
-
-**Promise-Based:**
-```javascript
-function fetchUser(id) {
-  return db.query('SELECT * FROM users WHERE id = ?', [id])
-    .then(user => {
-      if (!user) throw new NotFoundError();
-      return user;
-    })
-    .catch(error => {
-      logger.error('User fetch failed', error);
-      throw error;
-    });
-}
-```
-
-**Async/Await (Modern):**
-```javascript
-async function fetchUser(id) {
-  try {
-    const user = await db.query('SELECT * FROM users WHERE id = ?', [id]);
-    if (!user) throw new NotFoundError();
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (user) {
+      await this.cacheService.set(`user:${id}`, user, 3600);
+    }
     return user;
-  } catch (error) {
-    logger.error('User fetch failed', error);
-    throw error;
   }
 }
 ```
 
-### Worker Threads for CPU-Intensive Tasks
+## Python Patterns
 
-```javascript
-const { Worker } = require('worker_threads');
-
-function heavyComputation(data) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker('./compute.js');
-
-    worker.on('message', resolve);
-    worker.on('error', reject);
-
-    worker.postMessage(data);
-  });
-}
-```
-
-## Python Backend Frameworks
-
-### Django (Full-Featured)
+### FastAPI (Modern Async)
 
 ```python
-from django.http import JsonResponse
-from django.views import View
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from typing import Optional
+import structlog
+import time
 
-class UserAPI(View):
-    def get(self, request, user_id):
-        try:
-            user = User.objects.get(id=user_id)
-            return JsonResponse(UserSerializer(user).data)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'Not found'}, status=404)
+app = FastAPI(title="User API", version="1.0.0")
+logger = structlog.get_logger()
 
-    def post(self, request):
-        serializer = UserSerializer(data=request.POST)
-        if serializer.is_valid():
-            user = serializer.save()
-            return JsonResponse(UserSerializer(user).data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-```
+# Middleware for request timing
+@app.middleware("http")
+async def add_timing_header(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration = time.perf_counter() - start
+    response.headers["X-Response-Time"] = f"{duration:.3f}s"
+    return response
 
-### FastAPI (Modern, Fast)
+# Pydantic models with validation
+class UserCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    email: str = Field(..., regex=r'^[\w\.-]+@[\w\.-]+\.\w+$')
 
-```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-
-app = FastAPI()
-
-class User(BaseModel):
-    id: int
+class UserResponse(BaseModel):
+    id: str
     name: str
     email: str
+    created_at: str
 
-@app.get("/users/{user_id}")
-async def get_user(user_id: int):
-    user = await db.fetch_user(user_id)
+    class Config:
+        from_attributes = True
+
+# Dependency injection
+async def get_db():
+    async with db_pool.acquire() as conn:
+        yield conn
+
+# Route with proper typing and docs
+@app.get("/users/{user_id}", response_model=UserResponse)
+async def get_user(
+    user_id: str,
+    request: Request,
+    db = Depends(get_db)
+):
+    """
+    Retrieve a user by ID.
+
+    - **user_id**: UUID of the user
+    """
+    logger.info("fetching_user", user_id=user_id, request_id=request.state.request_id)
+
+    user = await db.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "USER_NOT_FOUND", "message": f"User {user_id} not found"}
+        )
 
-@app.post("/users")
-async def create_user(user: User):
-    result = await db.create_user(user)
-    return result
-```
+    return UserResponse(**dict(user))
 
-### Async Support with asyncio
-
-```python
-import asyncio
-
-async def fetch_user_and_posts(user_id):
-    # Run both concurrently
-    user, posts = await asyncio.gather(
-        db.fetch_user(user_id),
-        db.fetch_user_posts(user_id)
+# Exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error("unhandled_exception", error=str(exc), path=request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"code": "INTERNAL_ERROR", "message": "Internal server error"}
     )
-    return {'user': user, 'posts': posts}
 ```
 
-## Go Backend (Concurrency & Performance)
+## Go Patterns
 
-### Simple HTTP Server
+### Gin with Clean Architecture
 
 ```go
 package main
 
 import (
-    "encoding/json"
+    "context"
+    "log/slog"
     "net/http"
-    "github.com/gorilla/mux"
+    "os"
+    "os/signal"
+    "syscall"
+    "time"
+
+    "github.com/gin-gonic/gin"
+    "github.com/google/uuid"
 )
 
+// Domain Layer
 type User struct {
-    ID    int    `json:"id"`
-    Name  string `json:"name"`
-    Email string `json:"email"`
+    ID        string    `json:"id"`
+    Name      string    `json:"name"`
+    Email     string    `json:"email"`
+    CreatedAt time.Time `json:"created_at"`
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) {
-    vars := mux.Vars(r)
-    userID := vars["id"]
+type UserRepository interface {
+    FindByID(ctx context.Context, id string) (*User, error)
+    Create(ctx context.Context, user *User) error
+}
 
-    user, err := db.GetUser(userID)
+// Application Layer
+type UserService struct {
+    repo   UserRepository
+    logger *slog.Logger
+}
+
+func (s *UserService) GetUser(ctx context.Context, id string) (*User, error) {
+    s.logger.Info("fetching user", "user_id", id)
+    return s.repo.FindByID(ctx, id)
+}
+
+// HTTP Layer
+type UserHandler struct {
+    service *UserService
+}
+
+func (h *UserHandler) GetUser(c *gin.Context) {
+    ctx := c.Request.Context()
+    userID := c.Param("id")
+
+    user, err := h.service.GetUser(ctx, userID)
     if err != nil {
-        http.Error(w, "Not found", http.StatusNotFound)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "code":    "INTERNAL_ERROR",
+            "message": err.Error(),
+        })
         return
     }
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(user)
+    if user == nil {
+        c.JSON(http.StatusNotFound, gin.H{
+            "code":    "NOT_FOUND",
+            "message": "User not found",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+// Middleware
+func RequestIDMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        requestID := c.GetHeader("X-Request-ID")
+        if requestID == "" {
+            requestID = uuid.New().String()
+        }
+        c.Set("request_id", requestID)
+        c.Header("X-Request-ID", requestID)
+        c.Next()
+    }
 }
 
 func main() {
-    router := mux.NewRouter()
-    router.HandleFunc("/api/users/{id}", getUser).Methods("GET")
-    http.ListenAndServe(":8000", router)
+    // Graceful shutdown
+    ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+    defer stop()
+
+    r := gin.New()
+    r.Use(gin.Recovery(), RequestIDMiddleware())
+
+    // Routes
+    handler := &UserHandler{service: userService}
+    r.GET("/users/:id", handler.GetUser)
+
+    srv := &http.Server{Addr: ":8080", Handler: r}
+
+    go func() {
+        if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+            slog.Error("server error", "error", err)
+        }
+    }()
+
+    <-ctx.Done()
+
+    shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+    srv.Shutdown(shutdownCtx)
 }
 ```
 
-### Goroutines for Concurrency
-
-```go
-func fetchMultipleUsers(userIDs []int) []User {
-    resultChan := make(chan User, len(userIDs))
-
-    for _, id := range userIDs {
-        go func(uid int) {
-            user, _ := db.GetUser(uid)
-            resultChan <- user
-        }(id)
-    }
-
-    users := make([]User, 0)
-    for i := 0; i < len(userIDs); i++ {
-        users = append(users, <-resultChan)
-    }
-
-    return users
-}
-```
-
-## Java/Spring Boot Architecture
-
-### Spring Boot REST Controller
+## Java/Spring Boot Patterns
 
 ```java
+// UserController.java
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
+@Validated
+@Slf4j
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Long id) {
-        User user = userService.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return ResponseEntity.ok(user);
+    public ResponseEntity<ApiResponse<UserDto>> getUser(
+            @PathVariable @UUID String id,
+            @RequestHeader("X-Request-ID") String requestId) {
+
+        log.info("Fetching user: {} (requestId: {})", id, requestId);
+
+        return userService.findById(id)
+            .map(user -> ResponseEntity.ok(ApiResponse.success(user)))
+            .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDTO userDTO) {
-        User user = userService.create(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<UserDto> createUser(
+            @Valid @RequestBody CreateUserRequest request) {
+
+        UserDto user = userService.create(request);
+        return ApiResponse.success(user);
+    }
+}
+
+// GlobalExceptionHandler.java
+@RestControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleNotFound(ResourceNotFoundException ex, WebRequest request) {
+        log.warn("Resource not found: {}", ex.getMessage());
+        return ApiError.builder()
+            .type("https://api.example.com/errors/not-found")
+            .title("Resource not found")
+            .status(404)
+            .detail(ex.getMessage())
+            .instance(request.getDescription(false))
+            .build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleValidation(MethodArgumentNotValidException ex) {
+        List<FieldError> errors = ex.getBindingResult().getFieldErrors()
+            .stream()
+            .map(e -> new FieldError(e.getField(), e.getDefaultMessage()))
+            .collect(Collectors.toList());
+
+        return ApiError.builder()
+            .type("https://api.example.com/errors/validation")
+            .title("Validation failed")
+            .status(400)
+            .errors(errors)
+            .build();
     }
 }
 ```
 
-### Service Layer Pattern
+## Error Handling Pattern (Universal)
 
-```java
-@Service
-@Transactional
-public class UserService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    public User findById(Long id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
-
-    public User create(UserDTO dto) {
-        User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        return userRepository.save(user);
-    }
-}
-```
-
-## Error Handling Strategies
-
-### Centralized Error Handler
-
-```javascript
-// Express example
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  const message = err.message || 'Internal Server Error';
-
-  logger.error(err.message, {
-    status,
-    path: req.path,
-    method: req.method,
-    stack: err.stack
-  });
-
-  res.status(status).json({
-    error: {
-      code: err.code || 'INTERNAL_ERROR',
-      message,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-    }
-  });
-});
-```
-
-### Custom Error Classes
-
-```javascript
-class APIError extends Error {
-  constructor(message, status = 500, code = 'INTERNAL_ERROR') {
+```typescript
+// Custom error classes
+class AppError extends Error {
+  constructor(
+    public readonly code: string,
+    public readonly message: string,
+    public readonly status: number = 500,
+    public readonly details?: Record<string, unknown>,
+  ) {
     super(message);
-    this.status = status;
-    this.code = code;
+    this.name = this.constructor.name;
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  toJSON() {
+    return {
+      type: `https://api.example.com/errors/${this.code.toLowerCase()}`,
+      title: this.message,
+      status: this.status,
+      code: this.code,
+      details: this.details,
+    };
   }
 }
 
-class NotFoundError extends APIError {
-  constructor(message = 'Resource not found') {
-    super(message, 404, 'NOT_FOUND');
+class NotFoundError extends AppError {
+  constructor(resource: string, id: string) {
+    super('NOT_FOUND', `${resource} with ID ${id} not found`, 404);
   }
 }
 
-class ValidationError extends APIError {
-  constructor(message = 'Validation failed', details = {}) {
-    super(message, 422, 'VALIDATION_ERROR');
-    this.details = details;
+class ValidationError extends AppError {
+  constructor(errors: Array<{ field: string; message: string }>) {
+    super('VALIDATION_ERROR', 'Validation failed', 400, { errors });
+  }
+}
+
+class ConflictError extends AppError {
+  constructor(message: string) {
+    super('CONFLICT', message, 409);
   }
 }
 ```
-
-## Production Checklist
-
-- [ ] Proper error handling implemented
-- [ ] Logging configured (Winston, Pino, Bunyan)
-- [ ] Request validation in place
-- [ ] Response compression enabled
-- [ ] CORS properly configured
-- [ ] Rate limiting implemented
-- [ ] Database connection pooling
-- [ ] Graceful shutdown handling
-- [ ] Health check endpoint
-- [ ] Metrics collection
-- [ ] Security headers set
-- [ ] Environment variables configured
 
 ---
 
-**Next:** Database & Performance (Agent 3) or DevOps (Agent 4)
+## Troubleshooting Guide
+
+### Common Failure Modes
+
+| Symptom | Root Cause | Solution |
+|---------|-----------|----------|
+| ECONNRESET | Connection dropped | Implement retry with backoff |
+| ENOMEM | Memory leak | Profile heap, check event listeners |
+| EADDRINUSE | Port already bound | Check for zombie processes |
+| Unhandled Promise Rejection | Missing catch | Add global rejection handler |
+
+### Debug Checklist
+
+```bash
+# 1. Check process health
+ps aux | grep node
+lsof -i :3000
+
+# 2. View logs
+tail -f logs/app.log | jq
+
+# 3. Check memory usage
+node --inspect app.js
+# Open chrome://inspect
+
+# 4. Profile CPU
+node --prof app.js
+node --prof-process isolate-*.log
+
+# 5. Test endpoint
+curl -v -X GET http://localhost:3000/health
+```
+
+### Performance Optimization
+
+```typescript
+// Connection pooling
+const pool = new Pool({
+  connectionLimit: 10,
+  queueLimit: 0,
+  waitForConnections: true,
+});
+
+// Response compression
+app.use(compression({ threshold: 1024 }));
+
+// Async iteration for large datasets
+async function* streamUsers() {
+  let cursor = null;
+  while (true) {
+    const batch = await db.query(
+      'SELECT * FROM users WHERE id > ? LIMIT 100',
+      [cursor || 0]
+    );
+    if (batch.length === 0) break;
+    cursor = batch[batch.length - 1].id;
+    yield* batch;
+  }
+}
+```
+
+---
+
+## Quality Checklist
+
+- [ ] Proper error handling with custom error classes
+- [ ] Structured logging (JSON format)
+- [ ] Request validation with schemas
+- [ ] Response compression enabled
+- [ ] CORS properly configured
+- [ ] Rate limiting implemented
+- [ ] Health check endpoint `/health`
+- [ ] Graceful shutdown handling
+- [ ] Connection pooling configured
+- [ ] Environment variables validated on startup
+
+---
+
+**Handoff:** Database queries → Agent 03 | Security review → Agent 05 | Deployment → Agent 04
