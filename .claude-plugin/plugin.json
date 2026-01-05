@@ -112,8 +112,5 @@
       "path": "./skills/scaling-patterns/SKILL.md",
       "description": "Microservices, event-driven, and distributed system patterns"
     }
-  ],
-  "hooks": {
-    "path": "./hooks/hooks.json"
-  }
+  ]
 }

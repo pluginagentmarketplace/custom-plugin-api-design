@@ -63,7 +63,7 @@
 
 ```bash
 # Step 1️⃣ Add the marketplace
-/plugin add marketplace pluginagentmarketplace/custom-plugin-api-design
+/plugin marketplace add pluginagentmarketplace/custom-plugin-api-design
 
 # Step 2️⃣ Install the plugin
 /plugin install custom-plugin-api-design@pluginagentmarketplace-api-design
